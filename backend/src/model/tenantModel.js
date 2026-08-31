@@ -79,6 +79,7 @@ Tenant.init(
     sequelize,
     modelName: "Tenant",
     tableName: "tenants",
+    underscored:true
   }
 );
 

@@ -13,6 +13,7 @@ Branch.init({
         type:DataTypes.UUID,
         allowNull:false
     },
+    //
     name:{
         type:DataTypes.STRING,
         allowNull:false
@@ -50,6 +51,7 @@ Branch.init({
         type:DataTypes.STRING,
         allowNull:false
     },
+    
     opening_time:{
         type:DataTypes.TIME,
         allowNull:false
@@ -57,32 +59,27 @@ Branch.init({
     closing_time:{
         type:DataTypes.TIME,
         allowNull:false
-    },
+    }, 
+    //
     status:{
         type:DataTypes.BOOLEAN,
         allowNull:false,
         defaultValue:true
     },
+    //
     capacity:{
-        type:DataTypes.INTEGER,
+        type:DataTypes.INTEGER, 
         allowNull:false
     },
-    created_at:{
-        type:DataTypes.DATE,
-        allowNull:false,
-        defaultValue:Date.now
-    },
-    updated_at:{
-        type:DataTypes.DATE,
-        allowNull:false,
-        defaultValue:Date.now
-    }
+    //
+  
 
 },{
     sequelize,
-    modelName:'Branches',
-    tableName:'branches',
-
+    modelName: 'Branch',
+    tableName: 'branches',
+    timestamps: true,
+    underscored: true
 })
 
 export default Branch;
