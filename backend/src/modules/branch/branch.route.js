@@ -7,5 +7,9 @@ import { roleMiddleware } from '../../middleware/role.middleware.js';
 const router = express.Router();
 
 router.post('/',authMiddleware,tenantMiddleware,roleMiddleware('ADMIN'),branchController.createBranch);
+router.get('/',authMiddleware,tenantMiddleware,roleMiddleware('ADMIN'),branchController.getAllBranches);
+router.get('/:id',authMiddleware,tenantMiddleware,roleMiddleware('ADMIN'),branchController.getBranchById);
+router.delete('/:id',authMiddleware,tenantMiddleware,roleMiddleware('ADMIN'),branchController.deleteBranch);
+router.patch('/:id',authMiddleware,tenantMiddleware,roleMiddleware('ADMIN'),branchController.updateBranch);
 
 export default router;
