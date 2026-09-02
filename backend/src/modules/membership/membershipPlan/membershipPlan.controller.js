@@ -1,4 +1,4 @@
-import {Tenant, MembershipPlan} from '../../model/index.js';
+import {Tenant, MembershipPlan} from '../../../model/index.js';
 import { membershipPlanSchema , membershipPlanUpdateSchema} from './membershipPlan.validation.js';
 
 export const createMembershipPlan = async(req,res)=>{

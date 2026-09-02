@@ -4,6 +4,7 @@ import User from './userModel.js';
 import Branch from './branchModel.js';
 import MembershipPlan from './membershipPlanModel.js';
 import Member from './memberModel.js';
+import MemberMembership from './memberMembershipModel.js';
 
 Tenant.hasMany(Branch,{foreignKey:"tenant_id"});
 Branch.belongsTo(Tenant,{foreignKey:"tenant_id"});
@@ -23,9 +24,14 @@ Member.belongsTo(Tenant,{foreignKey:"tenant_id"});
 Branch.hasMany(Member,{foreignKey:"branch_id"});
 Member.belongsTo(Branch,{foreignKey:"branch_id"})
 
-// Member.hasMany(MembershipPlan,{foreignKey:"member_id"});
-// MembershipPlan.belongsTo(Member,{foreignKey:"member_id"});
+Tenant.hasMany(MemberMembership,{foreignKey:"tenant_id"});
+MemberMembership.belongsTo(Tenant,{foreignKey:"tenant_id"});
 
+Member.hasMany(MemberMembership,{foreignKey:"member_id"});
+MemberMembership.belongsTo(Member,{foreignKey:"member_id"});
+
+MembershipPlan.hasMany(MemberMembership,{foreignKey:"membership_plan_id"});
+MemberMembership.belongsTo(MembershipPlan,{foreignKey:"membership_plan_id"});
 
 
 export {
@@ -33,5 +39,6 @@ export {
     Branch,
     User,
     MembershipPlan,
-    Member
+    Member,
+    MemberMembership
 }

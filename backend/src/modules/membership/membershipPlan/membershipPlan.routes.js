@@ -1,7 +1,7 @@
 import express from 'express';
-import * as membershipPlanCOntroller from '../membership/membershipPlan.controller.js';
-import { authMiddleware } from '../auth/auth.middleware.js';
-import { roleMiddleware } from '../../middleware/role.middleware.js';
+import * as membershipPlanCOntroller from './membershipPlan.controller.js';
+import { authMiddleware } from '../../auth/auth.middleware.js';
+import { roleMiddleware } from '../../../middleware/role.middleware.js';
 
 const router = express.Router();
 
