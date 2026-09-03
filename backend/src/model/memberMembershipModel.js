@@ -60,6 +60,7 @@ MemberMembership.init({
         type:DataTypes.DATEONLY,
         allowNull:true
     },
+   
     status:{
         type:DataTypes.ENUM(
             'ACTIVE',
@@ -73,7 +74,9 @@ MemberMembership.init({
     sequelize,
     modelName:'MemberMembership',
     tableName:'member_memberships',
-    timestamps:true
+   timestamps: true,
+createdAt: 'created_at',
+updatedAt: 'updated_at'
 })
 
 export default MemberMembership;

@@ -13,6 +13,13 @@ router.get('/:id',authMiddleware,roleMiddleware('ADMIN'),memberMembershipControl
 
 router.patch('/:id',authMiddleware,roleMiddleware('ADMIN'),memberMembershipController.updateMemberMembership);
 
-router.patch('/:id/deactivate',authMiddleware,roleMiddleware('ADMIN'),memberMembershipController.deactivateMemberMembership)
+router.patch('/:id/deactivate',authMiddleware,roleMiddleware('ADMIN'),memberMembershipController.deactivateMemberMembership);
+router.patch(
+    '/:id/freeze',
+    authMiddleware,
+    roleMiddleware('ADMIN'),
+    memberMembershipController.freezeMemberMembership
+);
+// router.delete('/:id',authMiddleware,roleMiddleware('ADMIN'),memberMembershipController.deleteMemberMembership);
 
 export default router

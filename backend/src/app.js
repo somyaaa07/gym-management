@@ -10,6 +10,7 @@ import userRoutes from './modules/user/user.route.js';
 import branchRoutes from './modules/branch/branch.route.js';
 import membershipRoutes from './modules/membership/membershipPlan/membershipPlan.routes.js'
 import memberMembershipRoutes from './modules/membership/memberMembership/memberMembership.routes.js'
+import members from './modules/membership/member/member.routes.js';
 
 const app = express()
 app.use(express.json());
@@ -23,6 +24,7 @@ app.use('/api/v1/auth',authRoutes);
 app.use('/api/v1/tenant',tenantRoutes);
 app.use('/api/v1/users',userRoutes);
 app.use('/api/v1/branches',branchRoutes);
+app.use('/api/v1/members',members)
 app.use('/api/v1/membership',membershipRoutes);
 app.use('/api/v1/member-membership',memberMembershipRoutes);
 

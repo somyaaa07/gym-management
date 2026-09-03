@@ -18,7 +18,6 @@ export const memberMembershipSchema = z.object({
 })
 
 export const updateMemberMembershipSchema = z.object({
-    membership_plan_id: z.string().uuid().optional(),
     payment_status:z.enum([
         "PAID",
         "PENDING",
@@ -26,6 +25,11 @@ export const updateMemberMembershipSchema = z.object({
     ]).optional(),
     auto_renew:z.boolean().optional(),
     discount:z.number().min(0).optional(),
-    freeze_start_date:z.coerce.date().optional(),
-    freeze_end_date:z.coerce.date().optional()
+    // freeze_start_date:z.coerce.date().optional(),
+    // freeze_end_date:z.coerce.date().optional()
+})
+
+export const freezeMemberMembershipSchema = z.object({
+    freeze_start_date:z.coerce.date(),
+    freeze_end_date:z.coerce.date()
 })

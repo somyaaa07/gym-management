@@ -33,6 +33,11 @@ MemberMembership.belongsTo(Member,{foreignKey:"member_id"});
 MembershipPlan.hasMany(MemberMembership,{foreignKey:"membership_plan_id"});
 MemberMembership.belongsTo(MembershipPlan,{foreignKey:"membership_plan_id"});
 
+Member.belongsToMany(MembershipPlan,{
+    through:MemberMembership,
+    foreignKey:"member_id",
+    otherKey:"membership_plan_id"
+})
 
 export {
     Tenant,
