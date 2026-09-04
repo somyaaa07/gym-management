@@ -5,6 +5,7 @@ import Branch from './branchModel.js';
 import MembershipPlan from './membershipPlanModel.js';
 import Member from './memberModel.js';
 import MemberMembership from './memberMembershipModel.js';
+import MemberFaceId from './memberFaceModel.js';
 
 Tenant.hasMany(Branch,{foreignKey:"tenant_id"});
 Branch.belongsTo(Tenant,{foreignKey:"tenant_id"});
@@ -37,7 +38,16 @@ Member.belongsToMany(MembershipPlan,{
     through:MemberMembership,
     foreignKey:"member_id",
     otherKey:"membership_plan_id"
-})
+});
+
+Member.hasOne(MemberFaceId,{foreignKey:"member_id"});
+MemberFaceId.belongsTo(Member,{foreignKey:"member_id"});
+
+// one tenant has n number of memberfaceId and one memberfaceId belongs to one tenant
+Tenant.hasMany(MemberFaceId,{foreignKey:"tenant_id"});
+MemberFaceId.belongsTo(Tenant,{foreignKey:"tenant_id"});
+
+
 
 export {
     Tenant,
@@ -45,5 +55,6 @@ export {
     User,
     MembershipPlan,
     Member,
-    MemberMembership
+    MemberMembership,
+    MemberFaceId
 }

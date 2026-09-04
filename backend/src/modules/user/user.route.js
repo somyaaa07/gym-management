@@ -6,7 +6,7 @@ import { tenantMiddleware } from '../../middleware/tenant.middleware.js';
 
 const router = express.Router();
 
-router.post('/',authMiddleware,roleMiddleware('SUPER_ADMIN','ADMIN'),UserController.createUser);
+router.post('/',authMiddleware,roleMiddleware('ADMIN'),UserController.createUser);
 
 router.get('/',authMiddleware,tenantMiddleware,roleMiddleware('SUPER_ADMIN','ADMIN'),UserController.getAllUsers);
 router.get('/:id',authMiddleware,tenantMiddleware,roleMiddleware('SUPER_ADMIN','ADMIN'),UserController.getUserById);
