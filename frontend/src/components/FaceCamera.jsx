@@ -30,17 +30,17 @@ export default function FaceCamera({ onFaceDetected }) {
 
             console.log("Detection:", detection);
 
+if (detection && !faceDetectedRef.current) {
 
-            if (detection && !faceDetectedRef.current) {
+    faceDetectedRef.current = true;
 
-              faceDetectedRef.current = true;
+    const embedding = Array.from(detection.descriptor);
 
-              const embedding = Array.from(detection.descriptor);
+    console.log("Embedding length:", embedding.length);
 
-              console.log("Embedding length:", embedding.length);
-
-              onFaceDetected(embedding);
-            } else {
+    onFaceDetected(embedding);
+}
+          else {
 
               console.log("No face detected");
 

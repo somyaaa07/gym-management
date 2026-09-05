@@ -98,36 +98,23 @@ export const verifyFaceId = async (req, res) => {
 
         const tenant_id = req.user.tenant_id;
 
-        const registeredFaces = await MemberFaceId.findAll({
-            where: {
-                tenant_id,
-                is_active: true
-            },
-            include: [
-                {
-                    model: Member,
-                    attributes: ["id", "name", "phone", "email"],
-                    include: [
-                        {
-                            model: MemberMembership,
-                            where:{
-                                status:'ACTIVE'
-                            },
-                            include: [
-                                {
-                                    model: MembershipPlan,
-
-                                }
-                            ]
-                        }
-                    ]
-                }
-            ]
-        });
+      const registeredFaces = await MemberFaceId.findAll({
+    where: {
+        tenant_id,
+        is_active: true
+    },
+    include: [
+        {
+            model: Member,
+            attributes: ["id", "name", "phone", "email"]
+        }
+    ]
+});
 
 
         const incomingEmbedding = face_embedding;
         let matchedFace = null;
+        let bestDistance = Infinity;
 for (const faceRecord of registeredFaces) {
     let currentEmbedding = faceRecord.face_embedding;
     if (typeof currentEmbedding === "string") {
@@ -145,23 +132,46 @@ for (const faceRecord of registeredFaces) {
     console.log("Incoming length:", incomingEmbedding?.length);
     console.log("================================");
 
+
+    console.log("========== BEST MATCH ==========");
+console.log("Best member:", matchedFace?.Member?.name);
+console.log("Best distance:", bestDistance);
+console.log("================================");
     const Validationresult = comapreFaceEmbeddings(
         currentEmbedding,
         incomingEmbedding
     );
+    console.log(
+    "Member:",
+    faceRecord.Member?.name,
+    "Distance:",
+    Validationresult.distance,
+    "Matched:",
+    Validationresult.matched
+);
 
-    if (Validationresult.matched) {
-        matchedFace = faceRecord;
-        break;
-    }
+    // if (Validationresult.matched) {
+    //     matchedFace = faceRecord;
+    //     // break;
+    // }
+    if (Validationresult.distance < bestDistance) {
+    bestDistance = Validationresult.distance;
+    matchedFace = faceRecord;
+}
 }
 
-        if (!matchedFace) {
-            return res.status(401).json({
-                success: false,
-                message: "Face Id not verified"
-            })
-        }
+        // if (!matchedFace) {
+        //     return res.status(401).json({
+        //         success: false,
+        //         message: "Face Id not verified"
+        //     })
+        // }
+        if (!matchedFace || bestDistance > 0.6) {
+    return res.status(401).json({
+        success: false,
+        message: "Face Id not verified"
+    });
+}
         await matchedFace.update({
             last_verified_at: new Date()
         });
