@@ -7,3 +7,9 @@ export const loadFaceModels = async()=>{
 
     console.log('face models are loaded successfully')
 }
+
+export const detectFace = async(video)=>{
+    const detection = await faceApi.detectSingleFace(video,
+        new faceApi.TinyFaceDetectorOptions()).withFaceLandmarks().withFaceDescriptor();
+    return detection;
+}

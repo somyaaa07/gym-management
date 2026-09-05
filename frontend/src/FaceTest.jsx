@@ -4,9 +4,9 @@ import FaceCamera from "./components/FaceCamera";
 
 export default function FaceTest() {
     
-    // useEffect(() => {
-    //     loadFaceModels();
-    // }, []);
+    useEffect(() => {
+        loadFaceModels();
+    }, []);
 
     return (
         <div>

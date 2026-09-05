@@ -1,6 +1,6 @@
-import { Member, MemberFaceId } from "../../model/index.js";
+import { Member, MemberFaceId ,MemberMembership,MembershipPlan} from "../../model/index.js";
 import { faceValidationSchema, verificationFaceValidationSchema } from "./faceValidation.js";
-import compareFaceEmbeddings from '../../services/faceRecoginition.services.js'
+import {comapreFaceEmbeddings} from '../../services/faceRecoginition.services.js'
 export const createFaceId = async (req, res) => {
     try {
         const result = faceValidationSchema.safeParse(req.body);
@@ -128,18 +128,33 @@ export const verifyFaceId = async (req, res) => {
 
         const incomingEmbedding = face_embedding;
         let matchedFace = null;
+for (const faceRecord of registeredFaces) {
+    let currentEmbedding = faceRecord.face_embedding;
+    if (typeof currentEmbedding === "string") {
+     currentEmbedding = JSON.parse(currentEmbedding);
+}
 
-        for (const faceRecord of registeredFaces) {
-            const currentEmbedding = faceRecord.face_embedding;
+    console.log("========== FACE DEBUG ==========");
+    console.log("Registered embedding:", currentEmbedding);
+    console.log("Registered type:", typeof currentEmbedding);
+    console.log("Registered is array:", Array.isArray(currentEmbedding));
+    console.log("Registered length:", currentEmbedding?.length);
 
-            const Validationresult = compareFaceEmbeddings(currentEmbedding, incomingEmbedding);
-            if (Validationresult.matched) {
-                matchedFace = faceRecord
-                break;
-            }
+    console.log("Incoming type:", typeof incomingEmbedding);
+    console.log("Incoming is array:", Array.isArray(incomingEmbedding));
+    console.log("Incoming length:", incomingEmbedding?.length);
+    console.log("================================");
 
+    const Validationresult = comapreFaceEmbeddings(
+        currentEmbedding,
+        incomingEmbedding
+    );
 
-        }
+    if (Validationresult.matched) {
+        matchedFace = faceRecord;
+        break;
+    }
+}
 
         if (!matchedFace) {
             return res.status(401).json({

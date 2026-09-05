@@ -5,6 +5,7 @@ import * as faceController from './face.controller.js'
 
 const router = express.Router();
 
+router.post('/verify',authMiddleware,faceController.verifyFaceId);
 router.post('/:id',authMiddleware,roleMiddleware('ADMIN'),faceController.createFaceId);
 
 export default router;
