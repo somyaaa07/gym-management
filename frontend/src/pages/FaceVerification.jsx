@@ -41,15 +41,18 @@ const FaceVerification = () => {
         }
     };
 
-    // Shape of the API response can vary — read the common fields defensively
-    // instead of assuming one exact schema.
+    // The backend returns { success, message, data: { member_name, distance, ... } }
+    // on a match, and { success: false, message } when it can't verify.
     const isError = verificationResult?.error;
-    const matched = !isError
-        ? verificationResult?.match ?? verificationResult?.verified ?? verificationResult?.success
-        : null;
-    const memberName =
-        verificationResult?.memberName ?? verificationResult?.name ?? verificationResult?.member?.name;
-    const confidence = verificationResult?.confidence ?? verificationResult?.score;
+    const responseData = verificationResult?.data;
+    const matched = !isError ? verificationResult?.success ?? false : null;
+    const memberName = responseData?.member_name;
+    // distance is a "lower is better" euclidean score, not 0-1 confidence —
+    // convert it to a rough 0-100% so it reads the way the UI expects.
+    const confidence =
+        responseData?.distance != null
+            ? Math.max(0, 1 - responseData.distance)
+            : null;
 
     const headline = !modelsLoaded
         ? "Waking up the scanner."
@@ -86,8 +89,7 @@ const FaceVerification = () => {
                         </div>
                     ) : (
                         <>
-                            <FaceCamera onFaceDetected={handlefaceDatected} />
-                            {!faceEmbedding && (
+<FaceCamera onFaceDetected={handlefaceDatected} />                            {!faceEmbedding && (
                                 <div className="absolute inset-x-0 top-0 h-px bg-volt-400/70 shadow-[0_0_12px_2px_rgba(214,249,78,0.5)] animate-[scan_2.4s_ease-in-out_infinite]" />
                             )}
                             {faceEmbedding && (

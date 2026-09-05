@@ -113,65 +113,49 @@ export const verifyFaceId = async (req, res) => {
 
 
         const incomingEmbedding = face_embedding;
+
+        // 1:N identification needs more than "closest wins under the 1:1
+        // threshold" — as the tenant's member count grows, the chance that
+        // some *wrong* face lands under 0.6 purely by chance goes up. So we
+        // track the best AND second-best distance, and require the winner to
+        // clear the threshold AND be clearly closer than the runner-up.
+        const MATCH_THRESHOLD = 0.5;
+        const MIN_MARGIN = 0.08;
+
         let matchedFace = null;
         let bestDistance = Infinity;
-for (const faceRecord of registeredFaces) {
-    let currentEmbedding = faceRecord.face_embedding;
-    if (typeof currentEmbedding === "string") {
-     currentEmbedding = JSON.parse(currentEmbedding);
-}
+        let secondBestDistance = Infinity;
 
-    console.log("========== FACE DEBUG ==========");
-    console.log("Registered embedding:", currentEmbedding);
-    console.log("Registered type:", typeof currentEmbedding);
-    console.log("Registered is array:", Array.isArray(currentEmbedding));
-    console.log("Registered length:", currentEmbedding?.length);
+        for (const faceRecord of registeredFaces) {
+            let currentEmbedding = faceRecord.face_embedding;
+            if (typeof currentEmbedding === "string") {
+                currentEmbedding = JSON.parse(currentEmbedding);
+            }
 
-    console.log("Incoming type:", typeof incomingEmbedding);
-    console.log("Incoming is array:", Array.isArray(incomingEmbedding));
-    console.log("Incoming length:", incomingEmbedding?.length);
-    console.log("================================");
+            const { distance } = comapreFaceEmbeddings(
+                currentEmbedding,
+                incomingEmbedding
+            );
 
+            if (distance < bestDistance) {
+                secondBestDistance = bestDistance;
+                bestDistance = distance;
+                matchedFace = faceRecord;
+            } else if (distance < secondBestDistance) {
+                secondBestDistance = distance;
+            }
+            console.log(faceRecord.Member?.name, distance);
+        }
 
-    console.log("========== BEST MATCH ==========");
-console.log("Best member:", matchedFace?.Member?.name);
-console.log("Best distance:", bestDistance);
-console.log("================================");
-    const Validationresult = comapreFaceEmbeddings(
-        currentEmbedding,
-        incomingEmbedding
-    );
-    console.log(
-    "Member:",
-    faceRecord.Member?.name,
-    "Distance:",
-    Validationresult.distance,
-    "Matched:",
-    Validationresult.matched
-);
+        const isAmbiguous = (secondBestDistance - bestDistance) < MIN_MARGIN;
 
-    // if (Validationresult.matched) {
-    //     matchedFace = faceRecord;
-    //     // break;
-    // }
-    if (Validationresult.distance < bestDistance) {
-    bestDistance = Validationresult.distance;
-    matchedFace = faceRecord;
-}
-}
+        if (!matchedFace || bestDistance > MATCH_THRESHOLD || isAmbiguous) {
+            return res.status(401).json({
+                success: false,
+                message: "Face Id not verified"
+            });
+        }
 
-        // if (!matchedFace) {
-        //     return res.status(401).json({
-        //         success: false,
-        //         message: "Face Id not verified"
-        //     })
-        // }
-        if (!matchedFace || bestDistance > 0.6) {
-    return res.status(401).json({
-        success: false,
-        message: "Face Id not verified"
-    });
-}
         await matchedFace.update({
             last_verified_at: new Date()
         });
@@ -186,6 +170,7 @@ console.log("================================");
                 member_name: matchedFace.Member.name,
                 member_phone: matchedFace.Member.phone,
                 member_email: matchedFace.Member.email,
+                distance: bestDistance,
 
                 membership: matchedFace.Member.MemberMemberships
             }

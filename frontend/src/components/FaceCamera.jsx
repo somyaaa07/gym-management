@@ -1,10 +1,13 @@
 import React, { useEffect, useRef } from "react";
 import { detectFace } from "../services/faceApi.services";
 
-export default function FaceCamera({ onFaceDetected }) {
+export default function FaceCamera({ onFaceDetected ,resetKey}) {
 
   const videoRef = useRef(null);
   const faceDetectedRef = useRef(false);
+  useEffect(() => {
+    faceDetectedRef.current = false;
+}, [resetKey]);
 
   useEffect(() => {
 
@@ -30,7 +33,15 @@ export default function FaceCamera({ onFaceDetected }) {
 
             console.log("Detection:", detection);
 
-if (detection && !faceDetectedRef.current) {
+            // A low detection score usually means a blurry, angled, or
+            // partially-out-of-frame face. Embedding that frame poisons the
+            // reference (on registration) or produces an unreliable sample
+            // (on verification), so we reject it here instead of using it.
+            const MIN_DETECTION_SCORE = 0.8;
+            const isGoodDetection =
+                detection && (detection.detection?.score ?? 1) >= MIN_DETECTION_SCORE;
+
+if (isGoodDetection && !faceDetectedRef.current) {
 
     faceDetectedRef.current = true;
 
@@ -42,7 +53,7 @@ if (detection && !faceDetectedRef.current) {
 }
           else {
 
-              console.log("No face detected");
+              console.log("No face detected (or detection quality too low)");
 
             }
 
