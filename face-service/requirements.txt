@@ -1,0 +1,6 @@
+fastapi
+uvicorn[standard]
+pydantic
+face_recognition
+Pillow
+numpy
