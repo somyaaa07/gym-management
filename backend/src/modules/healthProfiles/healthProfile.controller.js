@@ -1,6 +1,7 @@
 import { Member, HealthProfile,Branch } from '../../model/index.js';
 import { sequelize } from '../../config/database.js';
 import { healthProfileSchema,updateHealthProfileSchema } from './healthProfile.validation.js';
+import { healthRiskAssessment } from '../../services/healthRiskAssessment.service.js';
 
 
 export const createHealthProfile = async (req, res) => {
@@ -39,6 +40,8 @@ export const createHealthProfile = async (req, res) => {
             return res.status(400).json({ message: "Health Profile already exists" });
         }
 
+        const health_risk_level = healthRiskAssessment(result.data);
+
         const healthProfile = await HealthProfile.create({
             tenant_id: tenant_id,
             member_id: member_id,
@@ -51,6 +54,7 @@ export const createHealthProfile = async (req, res) => {
             exercise_restriction: exercise_restriction,
             doctor_clearance: doctor_clearance,
             doctor_notes: doctor_notes,
+               health_risk_level: health_risk_level,
         })
 
         const createdProfile = await HealthProfile.findOne({
@@ -217,7 +221,6 @@ export const updateHealthProfile = async(req,res)=>{
             })
         }
 
-        const {blood_group,medical_condition,allergies,current_medication,injury_history,exercise_restriction,doctor_clearance,doctor_notes} = result.data;
 
         const tenant_id = req.user.tenant_id;
         const healthProfileID = req.params.id;
@@ -239,9 +242,17 @@ export const updateHealthProfile = async(req,res)=>{
             })
         }
 
-        await healthProfile.update(
-            result.data
-        )
+        const updatedData = {
+    ...healthProfile.toJSON(),
+    ...result.data
+};
+
+        const health_risk_level = healthRiskAssessment(updatedData);
+
+     await healthProfile.update({
+    ...result.data,
+    health_risk_level
+});
 
         return res.status(200).json({
             success:true,
