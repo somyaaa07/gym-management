@@ -12,6 +12,7 @@ import membershipRoutes from './modules/membership/membershipPlan/membershipPlan
 import memberMembershipRoutes from './modules/membership/memberMembership/memberMembership.routes.js'
 import members from './modules/membership/member/member.routes.js';
 import memberFaceId from './modules/face/face.routes.js' ;
+import healthProfile from './modules/healthProfiles/healthProfile.routes.js';
 
 const app = express()
 app.use(express.json({limit: '50mb'}));
@@ -29,6 +30,7 @@ app.use('/api/v1/members',members)
 app.use('/api/v1/membership',membershipRoutes);
 app.use('/api/v1/member-membership',memberMembershipRoutes);
 app.use('/api/v1/member-faceId',memberFaceId);
+app.use('/api/v1/health-profile',healthProfile);
 
 
 export default app;

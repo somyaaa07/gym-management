@@ -26,5 +26,4 @@ const connectDB = async()=>{
         process.exit(1)
     }
 }
-export {sequelize,connectDB}
-;
+export {sequelize,connectDB};
