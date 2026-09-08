@@ -7,7 +7,7 @@ export const registerMemberFace = async(memberId,faceEmbedding)=>{
     Authorization: `Bearer ${token}`
 },
         body:JSON.stringify({
-            face_embedding:faceEmbedding
+            image:faceEmbedding
         })
    }  
  )
@@ -27,7 +27,7 @@ export const verifyMemberFace = async(faceEmbedding)=>{
             Authorization: `Bearer ${token}`
         },
         body:JSON.stringify({
-            face_embedding:faceEmbedding
+            image:faceEmbedding
         })
         }
     )

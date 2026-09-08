@@ -2,11 +2,11 @@ import axios from 'axios';
 
 
 export const getFaceEncoding = async(imageBase64)=>{
-    const response = await axios.post((process.env.FACE_API_URL || 'http://localhost:8001')+'/encode',{
+    const response = await axios.post((process.env.FACE_SERVICE_URL || 'http://localhost:8001')+'/encode',{
         image:imageBase64,
     },{
         headers:{
-            'X-Internal-Key':process.env.FACE_API_KEY
+            'X-Internal-Key':process.env.FACE_SERVICE_KEY
             
         }
     })

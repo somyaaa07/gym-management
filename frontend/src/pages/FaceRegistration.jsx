@@ -1,22 +1,14 @@
 import FaceCamera from "../components/FaceCamera";
 import { useState, useEffect } from "react";
 import { registerMemberFace } from "../services/memberFace.services";
-import { loadFaceModels } from "../services/faceApi.services.js";
 
 export default function FaceRegistration() {
     const [faceEmbedding, setFaceEmbedding] = useState(null);
     const [memberId, setMemberId] = useState("");
-    const [modelsLoaded, setModelsLoaded] = useState(false);
+    const [modelsLoaded, setModelsLoaded] = useState(true);
     const [status, setStatus] = useState(null); 
     const [resetKey, setResetKey] = useState(0);// null | "saving" | "saved" | "error"
 
-    useEffect(() => {
-        const loadModels = async () => {
-            await loadFaceModels();
-            setModelsLoaded(true);
-        };
-        loadModels();
-    }, []);
 
     const handlefaceDatected = (embedding) => {
         setFaceEmbedding(embedding);

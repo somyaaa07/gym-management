@@ -1,13 +1,12 @@
 import React, { useEffect, useRef } from "react";
-import { detectFace } from "../services/faceApi.services";
 
-export default function FaceCamera({ onFaceDetected ,resetKey}) {
-
+export default function FaceCamera({ onFaceDetected, resetKey }) {
+  const canvasRef = useRef(null)
   const videoRef = useRef(null);
   const faceDetectedRef = useRef(false);
   useEffect(() => {
     faceDetectedRef.current = false;
-}, [resetKey]);
+  }, [resetKey]);
 
   useEffect(() => {
 
@@ -26,38 +25,18 @@ export default function FaceCamera({ onFaceDetected ,resetKey}) {
 
           videoRef.current.play();
 
-          // camera ko properly start hone ka time
-          setTimeout(async () => {
-
-            const detection = await detectFace(videoRef.current);
-
-            console.log("Detection:", detection);
-
-            // A low detection score usually means a blurry, angled, or
-            // partially-out-of-frame face. Embedding that frame poisons the
-            // reference (on registration) or produces an unreliable sample
-            // (on verification), so we reject it here instead of using it.
-            const MIN_DETECTION_SCORE = 0.8;
-            const isGoodDetection =
-                detection && (detection.detection?.score ?? 1) >= MIN_DETECTION_SCORE;
-
-if (isGoodDetection && !faceDetectedRef.current) {
-
-    faceDetectedRef.current = true;
-
-    const embedding = Array.from(detection.descriptor);
-
-    console.log("Embedding length:", embedding.length);
-
-    onFaceDetected(embedding);
-}
-          else {
-
-              console.log("No face detected (or detection quality too low)");
-
-            }
-
-          }, 1000);
+          
+          setTimeout(() => {
+            if (faceDetectedRef.current) return;
+            const canvas = canvasRef.current;
+            canvas.width = videoRef.current.videoWidth;
+            canvas.height = videoRef.current.videoHeight;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(videoRef.current, 0, 0, canvas.width, canvas.height);
+            const imageBase64 = canvas.toDataURL('image/jpeg');
+            faceDetectedRef.current = true;
+            onFaceDetected(imageBase64);
+          },1000);
         };
 
       } catch (error) {
@@ -86,6 +65,8 @@ if (isGoodDetection && !faceDetectedRef.current) {
         playsInline
         width="500"
       />
+            <canvas ref={canvasRef} style={{ display: 'none' }} />
+
     </div>
   );
 }

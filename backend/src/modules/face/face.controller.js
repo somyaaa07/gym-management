@@ -1,6 +1,7 @@
 import { Member, MemberFaceId ,MemberMembership,MembershipPlan} from "../../model/index.js";
 import { faceValidationSchema, verificationFaceValidationSchema } from "./faceValidation.js";
-import {comapreFaceEmbeddings} from '../../services/faceRecoginition.services.js'
+import {comapreFaceEmbeddings} from '../../services/faceRecoginition.services.js';
+import { getFaceEncoding } from "../../services/faceEncoding.services.js";
 export const createFaceId = async (req, res) => {
     try {
         const result = faceValidationSchema.safeParse(req.body);
@@ -11,10 +12,12 @@ export const createFaceId = async (req, res) => {
             })
         }
 
-        const { face_embedding } = result.data;
+        const { image } = result.data;
 
         const tenant_id = req.user.tenant_id;
         const member_id = req.params.id;
+
+        const face_embedding = await getFaceEncoding(image);
 
         const member = await Member.findOne({
             where: { id: member_id, tenant_id: tenant_id }
@@ -46,7 +49,7 @@ export const createFaceId = async (req, res) => {
             member_id: member_id,
             tenant_id: tenant_id,
             face_embedding: face_embedding,
-            embedding_model: "face-api.js"
+            embedding_model: "face_recognition"
         })
         const faceData = await MemberFaceId.findOne({
             where: {
@@ -94,7 +97,9 @@ export const verifyFaceId = async (req, res) => {
             })
         }
 
-        const { face_embedding } = result.data;
+        const { image } = result.data;
+        const face_embedding = await getFaceEncoding(image);
+
 
         const tenant_id = req.user.tenant_id;
 

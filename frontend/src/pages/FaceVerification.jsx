@@ -1,21 +1,13 @@
 import { useEffect, useState } from "react";
 import FaceCamera from "../components/FaceCamera";
-import { loadFaceModels } from "../services/faceApi.services";
 import { verifyMemberFace } from "../services/memberFace.services";
-
 const FaceVerification = () => {
     const [faceEmbedding, setFaceEmbedding] = useState(null);
-    const [modelsLoaded, setModelsLoaded] = useState(false);
+    const [modelsLoaded, setModelsLoaded] = useState(true);
     const [verificationResult, setVerificationResult] = useState(null);
     const [loading, setLoading] = useState(false);
 
-    useEffect(() => {
-        const loadModels = async () => {
-            await loadFaceModels();
-            setModelsLoaded(true);
-        };
-        loadModels();
-    }, []);
+ 
 
     const handlefaceDatected = (embedding) => {
         setFaceEmbedding(embedding);

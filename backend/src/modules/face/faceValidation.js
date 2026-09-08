@@ -1,9 +1,9 @@
 import {z} from 'zod';
 
 export const faceValidationSchema = z.object({
-    face_embedding: z.array(z.number()).length(128)
+    image: z.string().min(100,"No Custom error message")
 })
 
 export const verificationFaceValidationSchema = z.object({
-    face_embedding: z.array(z.number()).length(128),
+    image: z.string().min(100,"No Custom error message")
 });
