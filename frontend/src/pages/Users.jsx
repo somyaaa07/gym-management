@@ -128,10 +128,10 @@ export default function Users() {
               header: '',
               render: (r) => (
                 <div className="flex items-center gap-1 justify-end">
-                  <button onClick={(e) => { e.stopPropagation(); openEdit(r); }} className="p-1.5 text-ink-400 hover:text-volt-500 rounded-md hover:bg-ink-700">
+                  <button onClick={(e) => { e.stopPropagation(); openEdit(r); }} className="p-1.5 text-ink-400 hover:text-volt-500 rounded-xl hover:bg-ink-700">
                     <Pencil size={14} />
                   </button>
-                  <button onClick={(e) => { e.stopPropagation(); setDeleteTarget(r); }} className="p-1.5 text-ink-400 hover:text-ember-500 rounded-md hover:bg-ink-700">
+                  <button onClick={(e) => { e.stopPropagation(); setDeleteTarget(r); }} className="p-1.5 text-ink-400 hover:text-ember-500 rounded-xl hover:bg-ink-700">
                     <Trash2 size={14} />
                   </button>
                 </div>
@@ -174,7 +174,7 @@ export default function Users() {
             </Field>
           </div>
 
-          {error && <p className="text-xs text-ember-500 bg-ember-500/10 border border-ember-500/20 rounded-md px-3 py-2">{error}</p>}
+          {error && <p className="text-xs text-ember-500 bg-ember-500/10 border border-ember-500/20 rounded-xl px-3 py-2">{error}</p>}
 
           <div className="flex gap-2 pt-1">
             <Button variant="secondary" type="button" onClick={() => setModal(null)} className="flex-1">Cancel</Button>

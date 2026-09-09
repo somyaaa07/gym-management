@@ -121,7 +121,7 @@ export default function MembershipPlans() {
       ) : (
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {plans.map((p) => (
-            <div key={p.id} className="rounded-xl border border-ink-600 bg-ink-800 p-5 flex flex-col">
+            <div key={p.id} className="rounded-2xl border border-ink-700 bg-ink-800 shadow-soft p-5 flex flex-col">
               <div className="flex items-start justify-between mb-2">
                 <p className="font-display text-2xl text-bone-100 leading-none">{p.name}</p>
                 <Badge>{p.access_type === 'ALL_BRANCHES' ? 'All branches' : 'Single branch'}</Badge>
@@ -136,10 +136,10 @@ export default function MembershipPlans() {
                   </p>
                 </div>
                 <div className="flex items-center gap-1">
-                  <button onClick={() => openEdit(p)} className="p-1.5 text-ink-400 hover:text-volt-500 rounded-md hover:bg-ink-700">
+                  <button onClick={() => openEdit(p)} className="p-1.5 text-ink-400 hover:text-volt-500 rounded-xl hover:bg-ink-700">
                     <Pencil size={14} />
                   </button>
-                  <button onClick={() => setDeleteTarget(p)} className="p-1.5 text-ink-400 hover:text-ember-500 rounded-md hover:bg-ink-700">
+                  <button onClick={() => setDeleteTarget(p)} className="p-1.5 text-ink-400 hover:text-ember-500 rounded-xl hover:bg-ink-700">
                     <Trash2 size={14} />
                   </button>
                 </div>
@@ -185,7 +185,7 @@ export default function MembershipPlans() {
             </Select>
           </Field>
 
-          {error && <p className="text-xs text-ember-500 bg-ember-500/10 border border-ember-500/20 rounded-md px-3 py-2">{error}</p>}
+          {error && <p className="text-xs text-ember-500 bg-ember-500/10 border border-ember-500/20 rounded-xl px-3 py-2">{error}</p>}
 
           <div className="flex gap-2 pt-1">
             <Button variant="secondary" type="button" onClick={() => setModal(null)} className="flex-1">Cancel</Button>

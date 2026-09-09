@@ -1,13 +1,13 @@
 export default function Table({ columns, rows, rowKey = 'id', onRowClick }) {
   return (
-    <div className="overflow-x-auto rounded-xl border border-ink-600">
+    <div className="overflow-x-auto rounded-2xl border border-ink-700 bg-ink-800 shadow-soft">
       <table className="w-full text-sm">
         <thead>
-          <tr className="border-b border-ink-600 bg-ink-800">
+          <tr className="border-b border-ink-700 bg-ink-900">
             {columns.map((col) => (
               <th
                 key={col.key}
-                className="text-left font-medium text-ink-400 text-xs px-4 py-3 whitespace-nowrap"
+                className="text-left font-semibold text-ink-500 text-[11px] uppercase tracking-wide px-4 py-3.5 whitespace-nowrap"
               >
                 {col.header}
               </th>
@@ -19,8 +19,8 @@ export default function Table({ columns, rows, rowKey = 'id', onRowClick }) {
             <tr
               key={row[rowKey]}
               onClick={() => onRowClick?.(row)}
-              className={`border-b border-ink-700/70 last:border-0 ${
-                onRowClick ? 'cursor-pointer hover:bg-ink-800/70' : ''
+              className={`border-b border-ink-700 last:border-0 ${
+                onRowClick ? 'cursor-pointer hover:bg-volt-500/5' : ''
               } transition-colors`}
             >
               {columns.map((col) => (

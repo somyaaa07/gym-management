@@ -120,11 +120,11 @@ export default function MemberMemberships() {
               header: '',
               render: (r) => (
                 <div className="flex items-center gap-1 justify-end">
-                  <button onClick={(e) => { e.stopPropagation(); openEdit(r); }} className="p-1.5 text-ink-400 hover:text-volt-500 rounded-md hover:bg-ink-700">
+                  <button onClick={(e) => { e.stopPropagation(); openEdit(r); }} className="p-1.5 text-ink-400 hover:text-volt-500 rounded-xl hover:bg-ink-700">
                     <Pencil size={14} />
                   </button>
                   {r.status !== 'FROZEN' && r.status !== 'DEACTIVE' && (
-                    <button onClick={(e) => { e.stopPropagation(); openFreeze(r); }} className="p-1.5 text-ink-400 hover:text-sky-400 rounded-md hover:bg-ink-700">
+                    <button onClick={(e) => { e.stopPropagation(); openFreeze(r); }} className="p-1.5 text-ink-400 hover:text-sky-400 rounded-xl hover:bg-ink-700">
                       <Snowflake size={14} />
                     </button>
                   )}
@@ -132,7 +132,7 @@ export default function MemberMemberships() {
                     <button
                       onClick={(e) => { e.stopPropagation(); onDeactivate(r.id); }}
                       disabled={busyId === r.id}
-                      className="p-1.5 text-ink-400 hover:text-ember-500 rounded-md hover:bg-ink-700 disabled:opacity-50"
+                      className="p-1.5 text-ink-400 hover:text-ember-500 rounded-xl hover:bg-ink-700 disabled:opacity-50"
                     >
                       <Ban size={14} />
                     </button>
@@ -164,7 +164,7 @@ export default function MemberMemberships() {
             </Select>
           </Field>
 
-          {editError && <p className="text-xs text-ember-500 bg-ember-500/10 border border-ember-500/20 rounded-md px-3 py-2">{editError}</p>}
+          {editError && <p className="text-xs text-ember-500 bg-ember-500/10 border border-ember-500/20 rounded-xl px-3 py-2">{editError}</p>}
 
           <div className="flex gap-2 pt-1">
             <Button variant="secondary" type="button" onClick={() => setEditTarget(null)} className="flex-1">Cancel</Button>
@@ -182,7 +182,7 @@ export default function MemberMemberships() {
             <Input type="date" required value={freezeForm.freeze_end_date} onChange={(e) => setFreezeForm({ ...freezeForm, freeze_end_date: e.target.value })} />
           </Field>
 
-          {freezeError && <p className="text-xs text-ember-500 bg-ember-500/10 border border-ember-500/20 rounded-md px-3 py-2">{freezeError}</p>}
+          {freezeError && <p className="text-xs text-ember-500 bg-ember-500/10 border border-ember-500/20 rounded-xl px-3 py-2">{freezeError}</p>}
 
           <div className="flex gap-2 pt-1">
             <Button variant="secondary" type="button" onClick={() => setFreezeTarget(null)} className="flex-1">Cancel</Button>

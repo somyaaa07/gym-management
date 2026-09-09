@@ -34,7 +34,7 @@ export default function Register() {
 
   return (
     <AuthShell eyebrow="GET STARTED" title={<>Every branch.<br />One line of sight.</>}>
-      <h2 className="font-display text-3xl text-bone-100 leading-none mb-1">Create account</h2>
+      <h2 className="font-display text-2xl font-bold text-bone-100 leading-none mb-1.5">Create account</h2>
       <p className="text-sm text-ink-400 mb-7">
         This creates your admin login. Your gym profile is set up right after.
       </p>
@@ -76,7 +76,7 @@ export default function Register() {
           />
         </Field>
 
-        {error && <p className="text-xs text-ember-500 bg-ember-500/10 border border-ember-500/20 rounded-md px-3 py-2">{error}</p>}
+        {error && <p className="text-xs text-ember-500 bg-ember-500/10 border border-ember-500/20 rounded-xl px-3.5 py-2.5">{error}</p>}
 
         <Button type="submit" loading={loading} className="w-full mt-2">
           <UserPlus size={15} />

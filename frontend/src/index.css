@@ -3,7 +3,7 @@
 @tailwind utilities;
 
 html {
-  color-scheme: dark;
+  color-scheme: light;
 }
 
 body {
@@ -12,25 +12,25 @@ body {
 }
 
 ::selection {
-  background: #C7ED2E;
-  color: #14161A;
+  background: #6C5DD3;
+  color: #FFFFFF;
 }
 
 * {
   scrollbar-width: thin;
-  scrollbar-color: #3A4149 transparent;
+  scrollbar-color: #DFDCF3 transparent;
 }
 *::-webkit-scrollbar {
   width: 8px;
   height: 8px;
 }
 *::-webkit-scrollbar-thumb {
-  background-color: #3A4149;
+  background-color: #DFDCF3;
   border-radius: 8px;
 }
 
 :focus-visible {
-  outline: 2px solid #C7ED2E;
+  outline: 2px solid #6C5DD3;
   outline-offset: 2px;
 }
 
@@ -44,4 +44,29 @@ body {
 
 .tabular {
   font-variant-numeric: tabular-nums;
+}
+
+/* Poppins is loaded only at 500+ weights — default display text to a solid semibold
+   so headings using font-display without an explicit weight utility still look right. */
+.font-display {
+  font-weight: 600;
+}
+
+/* Reusable surfaces */
+.surface-card {
+  @apply bg-ink-800 border border-ink-700 rounded-2xl shadow-soft;
+}
+
+.surface-hero {
+  @apply bg-gradient-brand text-white rounded-2xl sm:rounded-3xl shadow-card;
+}
+
+/* Bottom mobile tab bar spacing so content never hides behind it */
+.has-mobile-nav {
+  padding-bottom: 5.5rem;
+}
+@media (min-width: 1024px) {
+  .has-mobile-nav {
+    padding-bottom: 0;
+  }
 }

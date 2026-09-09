@@ -27,12 +27,12 @@ export function ToastProvider({ children }) {
   return (
     <ToastContext.Provider value={api}>
       {children}
-      <div className="fixed bottom-5 right-5 z-[100] flex flex-col gap-2 w-[min(360px,90vw)]">
+      <div className="fixed bottom-5 sm:bottom-5 right-4 left-4 sm:left-auto sm:right-5 z-[100] flex flex-col gap-2 sm:w-[min(360px,90vw)] pointer-events-none [&>*]:pointer-events-auto" style={{ marginBottom: 'env(safe-area-inset-bottom)' }}>
         {toasts.map((t) => (
           <div
             key={t.id}
-            className={`flex items-start gap-3 rounded-lg border px-4 py-3 shadow-lg backdrop-blur bg-ink-800/95 animate-[toastIn_0.18s_ease-out]
-              ${t.variant === 'success' ? 'border-volt-500/40' : 'border-ember-500/40'}`}
+            className={`flex items-start gap-3 rounded-2xl border px-4 py-3.5 shadow-card backdrop-blur bg-ink-800/95 animate-[toastIn_0.18s_ease-out]
+              ${t.variant === 'success' ? 'border-volt-500/30' : 'border-ember-500/30'}`}
           >
             {t.variant === 'success' ? (
               <CheckCircle2 size={18} className="text-volt-500 mt-0.5 shrink-0" />

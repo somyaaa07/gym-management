@@ -126,7 +126,7 @@ export default function MemberDetail() {
         <ArrowLeft size={13} /> All members
       </Link>
 
-      <div className="rounded-xl border border-ink-600 bg-ink-800 p-6">
+      <div className="rounded-2xl border border-ink-700 bg-ink-800 shadow-soft p-6">
         <div className="flex items-start justify-between flex-wrap gap-4">
           <div className="flex items-center gap-4">
             <div className="h-14 w-14 rounded-xl bg-volt-500 flex items-center justify-center text-ink-900 font-display text-2xl">
@@ -165,7 +165,7 @@ export default function MemberDetail() {
         ) : (
           <div className="space-y-3">
             {memberships.map((m) => (
-              <div key={m.id} className="rounded-xl border border-ink-600 bg-ink-800 p-5 flex items-center justify-between flex-wrap gap-4">
+              <div key={m.id} className="rounded-2xl border border-ink-700 bg-ink-800 shadow-soft p-5 flex items-center justify-between flex-wrap gap-4">
                 <div>
                   <div className="flex items-center gap-2 mb-1.5">
                     <p className="font-display text-xl text-bone-100 leading-none">
@@ -235,7 +235,7 @@ export default function MemberDetail() {
             </Field>
           </div>
 
-          {enrollError && <p className="text-xs text-ember-500 bg-ember-500/10 border border-ember-500/20 rounded-md px-3 py-2">{enrollError}</p>}
+          {enrollError && <p className="text-xs text-ember-500 bg-ember-500/10 border border-ember-500/20 rounded-xl px-3 py-2">{enrollError}</p>}
 
           <div className="flex gap-2 pt-1">
             <Button variant="secondary" type="button" onClick={() => setEnrollOpen(false)} className="flex-1">Cancel</Button>
@@ -253,7 +253,7 @@ export default function MemberDetail() {
             <Input type="date" required value={freezeForm.freeze_end_date} onChange={(e) => setFreezeForm({ ...freezeForm, freeze_end_date: e.target.value })} />
           </Field>
 
-          {freezeError && <p className="text-xs text-ember-500 bg-ember-500/10 border border-ember-500/20 rounded-md px-3 py-2">{freezeError}</p>}
+          {freezeError && <p className="text-xs text-ember-500 bg-ember-500/10 border border-ember-500/20 rounded-xl px-3 py-2">{freezeError}</p>}
 
           <div className="flex gap-2 pt-1">
             <Button variant="secondary" type="button" onClick={() => setFreezeTarget(null)} className="flex-1">Cancel</Button>

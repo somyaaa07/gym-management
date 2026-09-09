@@ -34,17 +34,22 @@ function AdminDashboard() {
 
   return (
     <div className="space-y-8">
-      <div>
-        <p className="text-sm text-ink-400">
-          Signed in as <span className="text-bone-100">{profile?.name || user.email}</span> — here's how
-          your gym looks right now.
+      <div className="surface-hero px-6 py-7 sm:px-8 sm:py-9 relative overflow-hidden">
+        <div className="pointer-events-none absolute -top-10 -right-10 h-44 w-44 rounded-full bg-white/10 blur-2xl" />
+        <div className="pointer-events-none absolute -bottom-14 left-1/3 h-40 w-40 rounded-full bg-white/10 blur-2xl" />
+        <p className="relative text-xs font-medium text-white/70">Welcome back</p>
+        <h2 className="relative font-display text-2xl sm:text-3xl font-bold mt-1">
+          {profile?.name || user.email.split('@')[0]} 👋
+        </h2>
+        <p className="relative text-sm text-white/75 mt-2 max-w-md leading-relaxed">
+          Here's how your gym looks right now — branches, staff, members and plans, all in one place.
         </p>
       </div>
 
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        {cards.map((c) => (
+        {cards.map((c, i) => (
           <Link key={c.label} to={c.to}>
-            <StatCard label={c.label} value={c.value} icon={c.icon} accent={c.value > 0} />
+            <StatCard label={c.label} value={c.value} icon={c.icon} accent={c.value > 0} tone={i} />
           </Link>
         ))}
       </div>
@@ -83,16 +88,16 @@ function QuickAction({ title, description, to, icon: Icon }) {
   return (
     <Link
       to={to}
-      className="group flex items-start gap-4 rounded-xl border border-ink-600 bg-ink-800 p-5 hover:border-volt-500/40 transition-colors"
+      className="group flex items-start gap-4 surface-card p-5 hover:shadow-card hover:-translate-y-0.5 transition-all"
     >
-      <div className="rounded-lg bg-ink-700 p-2.5 shrink-0">
+      <div className="rounded-xl bg-gradient-brand-soft p-2.5 shrink-0">
         <Icon size={17} className="text-volt-500" />
       </div>
       <div className="flex-1 min-w-0">
-        <p className="text-sm font-medium text-bone-100">{title}</p>
+        <p className="text-sm font-semibold text-bone-100">{title}</p>
         <p className="text-xs text-ink-400 mt-1 leading-relaxed">{description}</p>
       </div>
-      <ArrowUpRight size={16} className="text-ink-500 group-hover:text-volt-500 transition-colors shrink-0 mt-0.5" />
+      <ArrowUpRight size={16} className="text-ink-400 group-hover:text-volt-500 transition-colors shrink-0 mt-0.5" />
     </Link>
   );
 }
@@ -104,12 +109,12 @@ function SuperAdminDashboard() {
       <p className="text-sm text-ink-400">
         Signed in as <span className="text-bone-100">{user.email}</span> — platform-level access.
       </p>
-      <div className="rounded-xl border border-ink-600 bg-ink-800 p-8 flex flex-col items-start gap-4 max-w-xl">
-        <div className="rounded-lg bg-volt-500/10 p-3">
+      <div className="surface-card p-8 flex flex-col items-start gap-4 max-w-xl">
+        <div className="rounded-2xl bg-gradient-brand-soft p-3">
           <ShieldCheck size={22} className="text-volt-500" />
         </div>
         <div>
-          <h3 className="font-display text-3xl text-bone-100 leading-none mb-2">Onboard a new gym</h3>
+          <h3 className="font-display text-2xl font-bold text-bone-100 leading-none mb-2">Onboard a new gym</h3>
           <p className="text-sm text-ink-400 leading-relaxed">
             As a super admin, you provision new gyms (tenants) on the platform. Once a gym is created,
             hand its admin account the tenant ID so they can be linked in.
@@ -129,11 +134,11 @@ function SuperAdminDashboard() {
 function RestrictedDashboard() {
   const { user } = useAuth();
   return (
-    <div className="rounded-xl border border-dashed border-ink-600 p-10 flex flex-col items-center text-center gap-3 max-w-lg mx-auto mt-10">
-      <div className="rounded-full bg-ink-700 p-3">
-        <Lock size={20} className="text-ink-400" />
+    <div className="rounded-2xl border border-dashed border-ink-600 bg-ink-800/50 p-10 flex flex-col items-center text-center gap-3 max-w-lg mx-auto mt-10">
+      <div className="rounded-2xl bg-gradient-brand-soft p-3">
+        <Lock size={20} className="text-volt-500" />
       </div>
-      <h3 className="font-display text-2xl text-bone-100 leading-none">No dashboard access yet</h3>
+      <h3 className="font-display text-xl font-bold text-bone-100 leading-none">No dashboard access yet</h3>
       <p className="text-sm text-ink-400 leading-relaxed">
         Your role ({user.role}) doesn't have any views enabled on this API yet — that access is
         currently reserved for gym admins. Ask your admin to extend permissions when it's ready.

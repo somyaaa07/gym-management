@@ -33,7 +33,7 @@ export default function Login() {
 
   return (
     <AuthShell eyebrow="OPERATIONS PLATFORM" title={<>Run the floor.<br />Not the spreadsheets.</>}>
-      <h2 className="font-display text-3xl text-bone-100 leading-none mb-1">Sign in</h2>
+      <h2 className="font-display text-2xl font-bold text-bone-100 leading-none mb-1.5">Sign in</h2>
       <p className="text-sm text-ink-400 mb-7">Enter your credentials to reach your dashboard.</p>
 
       <form onSubmit={onSubmit} className="space-y-4">
@@ -56,7 +56,7 @@ export default function Login() {
           />
         </Field>
 
-        {error && <p className="text-xs text-ember-500 bg-ember-500/10 border border-ember-500/20 rounded-md px-3 py-2">{error}</p>}
+        {error && <p className="text-xs text-ember-500 bg-ember-500/10 border border-ember-500/20 rounded-xl px-3.5 py-2.5">{error}</p>}
 
         <Button type="submit" loading={loading} className="w-full mt-2">
           <LogIn size={15} />

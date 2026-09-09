@@ -12,7 +12,7 @@ export default function AppLayout() {
       <Sidebar mobileOpen={mobileOpen} onCloseMobile={() => setMobileOpen(false)} />
       <div className="flex-1 flex flex-col min-w-0">
         <Topbar title={meta.title} subtitle={meta.subtitle} onOpenMobile={() => setMobileOpen(true)} />
-        <main className="flex-1 overflow-y-auto px-4 sm:px-6 py-6">
+        <main className="flex-1 overflow-y-auto px-4 sm:px-6 lg:px-8 py-5 sm:py-7 has-mobile-nav">
           <div className="max-w-6xl mx-auto">
             <Outlet context={{ setMeta }} />
           </div>

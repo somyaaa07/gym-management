@@ -39,9 +39,9 @@ export default function Tenant() {
 
   return (
     <div className="max-w-xl">
-      <div className="rounded-xl border border-ink-600 bg-ink-800 p-6">
+      <div className="rounded-2xl border border-ink-700 bg-ink-800 shadow-soft p-6">
         <div className="flex items-center gap-3 mb-6">
-          <div className="rounded-lg bg-volt-500/10 p-2.5">
+          <div className="rounded-xl bg-volt-500/10 p-2.5">
             <Building2 size={18} className="text-volt-500" />
           </div>
           <h2 className="font-display text-3xl text-bone-100 leading-none">{tenant.name}</h2>

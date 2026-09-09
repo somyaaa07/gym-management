@@ -116,7 +116,7 @@ export default function Tenants() {
       ) : (
         <div className="grid sm:grid-cols-2 gap-4">
           {tenants.map((t) => (
-            <div key={t.id} className="rounded-xl border border-ink-600 bg-ink-800 p-5">
+            <div key={t.id} className="rounded-2xl border border-ink-700 bg-ink-800 shadow-soft p-5">
               <div className="flex items-start justify-between">
                 <div>
                   <p className="font-display text-2xl text-bone-100 leading-none">{t.name}</p>
@@ -128,7 +128,7 @@ export default function Tenants() {
                   {t.status || 'ACTIVE'}
                 </span>
               </div>
-              <div className="mt-4 flex items-center gap-2 rounded-md bg-ink-900 border border-ink-600 px-3 py-2">
+              <div className="mt-4 flex items-center gap-2 rounded-xl bg-ink-900 border border-ink-600 px-3 py-2">
                 <code className="text-[11px] text-ink-300 truncate flex-1">{t.id}</code>
                 <button
                   onClick={() => copyId(t.id)}
@@ -173,7 +173,7 @@ export default function Tenants() {
             </Field>
           </div>
 
-          {error && <p className="text-xs text-ember-500 bg-ember-500/10 border border-ember-500/20 rounded-md px-3 py-2">{error}</p>}
+          {error && <p className="text-xs text-ember-500 bg-ember-500/10 border border-ember-500/20 rounded-xl px-3 py-2">{error}</p>}
 
           <div className="flex gap-2 pt-1">
             <Button variant="secondary" type="button" onClick={() => setOpen(false)} className="flex-1">
@@ -206,7 +206,7 @@ export default function Tenants() {
             <Input type="password" required minLength={8} value={adminForm.password} onChange={(e) => setAdminForm({ ...adminForm, password: e.target.value })} />
           </Field>
 
-          {adminError && <p className="text-xs text-ember-500 bg-ember-500/10 border border-ember-500/20 rounded-md px-3 py-2">{adminError}</p>}
+          {adminError && <p className="text-xs text-ember-500 bg-ember-500/10 border border-ember-500/20 rounded-xl px-3 py-2">{adminError}</p>}
 
           <div className="flex gap-2 pt-1">
             <Button variant="secondary" type="button" onClick={() => setAdminTarget(null)} className="flex-1">
