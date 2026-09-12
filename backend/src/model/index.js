@@ -7,6 +7,7 @@ import Member from './memberModel.js';
 import MemberMembership from './memberMembershipModel.js';
 import MemberFaceId from './memberFaceModel.js';
 import HealthProfile from './healthProfileModel.js';
+import Measurement from './measurementModel.js';
 
 Tenant.hasMany(Branch,{foreignKey:"tenant_id"});
 Branch.belongsTo(Tenant,{foreignKey:"tenant_id"});
@@ -57,6 +58,15 @@ HealthProfile.belongsTo(Branch,{foreignKey:'branch_id'});
 Member.hasOne(HealthProfile,{foreignKey:"member_id"});
 HealthProfile.belongsTo(Member,{foreignKey:"member_id"});
 
+Tenant.hasMany(Measurement,{foreignKey:"tenant_id"});
+Measurement.belongsTo(Tenant,{foreignKey:"tenant_id"});
+
+Branch.hasMany(Measurement,{foreignKey:"branch_id"});
+Measurement.belongsTo(Branch,{foreignKey:"branch_id"});
+
+Member.hasMany(Measurement,{foreignKey:"member_id"});
+Measurement.belongsTo(Member,{foreignKey:"member_id"});
+
 export {
     Tenant,
     Branch,
@@ -65,5 +75,6 @@ export {
     Member,
     MemberMembership,
     MemberFaceId,
-    HealthProfile
+    HealthProfile,
+    Measurement
 }

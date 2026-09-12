@@ -14,7 +14,7 @@ module.exports = {
           tenant_id:{
               type:Sequelize.UUID,
               allowNull:false,
-              reference:{
+              references:{
                 model:'tenants',
                 key:'id'
               },
@@ -24,7 +24,7 @@ module.exports = {
           branch_id:{
               type:Sequelize.UUID,
               allowNull:false,
-              reference:{
+              references:{
                 model:'branches',
                 key:'id'
               },
@@ -34,7 +34,7 @@ module.exports = {
           member_id:{
               type:Sequelize.UUID,
               allowNull:false,
-              reference:{
+              references:{
                 model:'members',
                 key:'id'
               },

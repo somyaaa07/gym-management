@@ -5,6 +5,7 @@ export default function FaceCamera({ onFaceDetected, resetKey }) {
   const canvasRef = useRef(null);
   const videoRef = useRef(null);
   const faceDetectedRef = useRef(false);
+  const [capturedPreview, setCapturedPreview] = useState(null);
   // Purely presentational — lets us show a loading / permission-error state
   // instead of a blank black box while the camera spins up.
   const [cameraState, setCameraState] = useState("requesting"); // requesting | streaming | error
@@ -37,6 +38,8 @@ export default function FaceCamera({ onFaceDetected, resetKey }) {
             const ctx = canvas.getContext("2d");
             ctx.drawImage(videoRef.current, 0, 0, canvas.width, canvas.height);
             const imageBase64 = canvas.toDataURL("image/jpeg");
+            setCapturedPreview(imageBase64);
+            console.log("CAPTURED IMAGE:", imageBase64);
             faceDetectedRef.current = true;
             onFaceDetected(imageBase64);
           }, 1000);
@@ -68,6 +71,9 @@ export default function FaceCamera({ onFaceDetected, resetKey }) {
         }`}
       />
       <canvas ref={canvasRef} style={{ display: "none" }} />
+      {capturedPreview && (
+    <img src={capturedPreview} alt="captured" width="200" style={{ marginTop: '10px', border: '2px solid lime' }} />
+)}
 
       {cameraState === "requesting" && (
         <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 bg-ink-950">
