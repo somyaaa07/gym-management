@@ -8,6 +8,11 @@ import MemberMembership from './memberMembershipModel.js';
 import MemberFaceId from './memberFaceModel.js';
 import HealthProfile from './healthProfileModel.js';
 import Measurement from './measurementModel.js';
+import Goal from './goalsModel.js';
+import Attendance from './attendanceModel.js';
+import AttendanceRule from './attendanceRulesModel.js';
+import MemberSlots from './memberSlotsModel.js';
+
 
 Tenant.hasMany(Branch,{foreignKey:"tenant_id"});
 Branch.belongsTo(Tenant,{foreignKey:"tenant_id"});
@@ -67,6 +72,28 @@ Measurement.belongsTo(Branch,{foreignKey:"branch_id"});
 Member.hasMany(Measurement,{foreignKey:"member_id"});
 Measurement.belongsTo(Member,{foreignKey:"member_id"});
 
+Tenant.hasMany(Goal,{foreignKey:"tenant_id"});
+Goal.belongsTo(Tenant,{foreignKey:"tenant_id"});
+
+Branch.hasMany(Goal,{foreignKey:"branch_id"});
+Goal.belongsTo(Branch,{foreignKey:"branch_id"});
+
+Member.hasMany(Goal,{foreignKey:"member_id"});
+Goal.belongsTo(Member,{foreignKey:"member_id"});
+
+Member.hasMany(MemberSlots,{foreignKey:'member_id'});
+MemberSlots.belongsTo(Member,{foreignKey:'member_id'});
+
+Member.hasMany(Attendance,{foreignKey:'member_id'});
+Attendance.belongsTo(Member,{foreignKey:'member_id'});
+
+Branch.hasMany(Attendance,{foreignKey:'branch_id'});
+Attendance.belongsTo(Branch,{foreignKey:'branch_id'});
+
+User.hasMany(Attendance,{foreignKey:'verified_by'});
+Attendance.belongsTo(User,{foreignKey:'verified_by', as:'verifiedByUser' });
+
+
 export {
     Tenant,
     Branch,
@@ -76,5 +103,10 @@ export {
     MemberMembership,
     MemberFaceId,
     HealthProfile,
-    Measurement
+    Measurement,
+    Goal,
+    Attendance,
+    MemberSlots,
+    AttendanceRule,
+    
 }

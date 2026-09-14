@@ -13,6 +13,9 @@ import memberMembershipRoutes from './modules/membership/memberMembership/member
 import members from './modules/membership/member/member.routes.js';
 import memberFaceId from './modules/face/face.routes.js' ;
 import healthProfile from './modules/healthProfiles/healthProfile.routes.js';
+import measurementRoutes from './modules/measurement/measurement.router.js';
+import goalsRoute from './modules/goals/goals.router.js';
+import memberSlotRoutes from './modules/attendance/memberSlot/memberSlot.router.js';
 
 const app = express()
 app.use(express.json({limit: '50mb'}));
@@ -31,6 +34,9 @@ app.use('/api/v1/membership',membershipRoutes);
 app.use('/api/v1/member-membership',memberMembershipRoutes);
 app.use('/api/v1/member-faceId',memberFaceId);
 app.use('/api/v1/health-profile',healthProfile);
+app.use('/api/v1/measurements',measurementRoutes);
+app.use('/api/v1/goals',goalsRoute);
+app.use('/api/v1/member-slot',memberSlotRoutes);
 
 
 export default app;
