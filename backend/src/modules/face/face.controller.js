@@ -2,6 +2,7 @@ import { Member, MemberFaceId ,MemberMembership,MembershipPlan} from "../../mode
 import { faceValidationSchema, verificationFaceValidationSchema } from "./faceValidation.js";
 import {comapreFaceEmbeddings} from '../../services/faceRecoginition.services.js';
 import { getFaceEncoding } from "../../services/faceEncoding.services.js";
+import { findMatchingFace } from '../../services/faceMatching.services.js';
 export const createFaceId = async (req, res) => {
     try {
         const result = faceValidationSchema.safeParse(req.body);
@@ -124,42 +125,14 @@ export const verifyFaceId = async (req, res) => {
         // some *wrong* face lands under 0.6 purely by chance goes up. So we
         // track the best AND second-best distance, and require the winner to
         // clear the threshold AND be clearly closer than the runner-up.
-        const MATCH_THRESHOLD = 0.5;
-        const MIN_MARGIN = 0.08;
+      const { matchedFace, bestDistance, isMatch } = findMatchingFace(incomingEmbedding, registeredFaces);
 
-        let matchedFace = null;
-        let bestDistance = Infinity;
-        let secondBestDistance = Infinity;
-
-        for (const faceRecord of registeredFaces) {
-            let currentEmbedding = faceRecord.face_embedding;
-            if (typeof currentEmbedding === "string") {
-                currentEmbedding = JSON.parse(currentEmbedding);
-            }
-
-            const { distance } = comapreFaceEmbeddings(
-                currentEmbedding,
-                incomingEmbedding
-            );
-
-            if (distance < bestDistance) {
-                secondBestDistance = bestDistance;
-                bestDistance = distance;
-                matchedFace = faceRecord;
-            } else if (distance < secondBestDistance) {
-                secondBestDistance = distance;
-            }
-            console.log(faceRecord.Member?.name, distance);
-        }
-
-        const isAmbiguous = (secondBestDistance - bestDistance) < MIN_MARGIN;
-
-        if (!matchedFace || bestDistance > MATCH_THRESHOLD || isAmbiguous) {
-            return res.status(401).json({
-                success: false,
-                message: "Face Id not verified"
-            });
-        }
+if (!isMatch) {
+    return res.status(401).json({
+        success: false,
+        message: "Face Id not verified"
+    });
+}
 
         await matchedFace.update({
             last_verified_at: new Date()

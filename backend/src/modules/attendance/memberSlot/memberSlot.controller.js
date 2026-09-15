@@ -1,5 +1,5 @@
 import { createMemberSlotSchema, updateMemberSlotSchema } from "./memberSlot.validation.js";
-import { Member, MemberSlots } from "../../models/index.js";
+import { Member, MemberSlots } from "../../../model/index.js";
 
 export const createMemberSlot = async (req, res) => {
     try {
@@ -74,7 +74,7 @@ export const getMemberSlots = async (req, res) => {
             },]
         })
 
-        if(!memberSlots){
+        if(memberSlots.length === 0){
             return res.status(404).json({
                 success: false,
                 message: "No member slots found"
@@ -101,7 +101,7 @@ export const getMemberSlots = async (req, res) => {
 export const updateMemberSlot = async(req,res)=>{
     try{
 
-        const result = updateMemberSlot.safeParse(req.body);
+        const result = updateMemberSlotSchema.safeParse(req.body);
         if (!result.success) {
             return res.status(400).json({
                 success: false,
@@ -129,7 +129,7 @@ export const updateMemberSlot = async(req,res)=>{
             })
         }
 
-        const memberSlot = await MemberSlots.update({
+       await member.update({
             ...(slot_end_time !== undefined && {slot_end_time}),
             ...(slot_start_time !== undefined && {slot_start_time})
         })
@@ -138,7 +138,7 @@ export const updateMemberSlot = async(req,res)=>{
         return res.status(200).json({
             success: true,
             message: "Member slot updated successfully",
-            data: memberSlot
+            data: member
         })
 
     }

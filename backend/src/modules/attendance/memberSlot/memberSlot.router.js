@@ -5,8 +5,8 @@ import * as memberSlotController from './memberSlot.controller.js';
 
 const router = express.Router();
 
-router.post('/' , authMiddleware, roleMiddleware('admin'), memberSlotController.createMemberSlot);
-router.get('/', authMiddleware, roleMiddleware('admin'), memberSlotController.getMemberSlots);
-router.put('/:id', authMiddleware, roleMiddleware('admin'), memberSlotController.updateMemberSlot);
+router.post('/' , authMiddleware, roleMiddleware('ADMIN'), memberSlotController.createMemberSlot);
+router.get('/:member_id', authMiddleware, roleMiddleware('ADMIN'), memberSlotController.getMemberSlots);
+router.put('/:member_id', authMiddleware, roleMiddleware('ADMIN'), memberSlotController.updateMemberSlot);
 
 export default router;
