@@ -89,16 +89,9 @@ export const getAllMembershipPlans = async(req,res)=>{
             }
         })
 
-        if(membershipPlans.length === 0){
-            return res.status(404).json({
-                success:false,
-                message:"No membership plans found"
-            })
-        }
-
         return res.status(200).json({
             success:true,
-            message:"Membership plans fetched successfully",
+            message:membershipPlans.length === 0 ? "No membership plans found" : "Membership plans fetched successfully",
             data:membershipPlans
         })
     }

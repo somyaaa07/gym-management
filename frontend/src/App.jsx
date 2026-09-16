@@ -17,6 +17,7 @@ import MemberMemberships from './pages/MemberMemberships.jsx';
 import NotFound from './pages/NotFound.jsx';
 import FaceIdTest from './pages/FaceRegistration.jsx';
 import FaceVerification  from './pages/FaceVerification.jsx';
+import Attendance from './pages/Attendance.jsx';
 
 export default function App() {
   const { isAuthenticated } = useAuth();
@@ -44,8 +45,9 @@ export default function App() {
         <Route path="members/:id" element={<ProtectedRoute roles={['ADMIN']}><MemberDetail /></ProtectedRoute>} />
         <Route path="membership-plans" element={<ProtectedRoute roles={['ADMIN']}><MembershipPlans /></ProtectedRoute>} />
         <Route path="memberships" element={<ProtectedRoute roles={['ADMIN']}><MemberMemberships /></ProtectedRoute>} />
+        <Route path="attendance" element={<ProtectedRoute roles={['ADMIN', 'MANAGER', 'RECEPTIONIST']}><Attendance /></ProtectedRoute>} />
         <Route path="faceidtest" element={<ProtectedRoute roles={['ADMIN']}><FaceIdTest /></ProtectedRoute>} />
-                <Route path="faceidverification" element={<FaceVerification/>} />
+        <Route path="faceidverification" element={<ProtectedRoute roles={['ADMIN', 'MANAGER', 'RECEPTIONIST']}><FaceVerification /></ProtectedRoute>} />
 
       </Route>
 

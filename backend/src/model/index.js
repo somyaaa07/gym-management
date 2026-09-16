@@ -12,7 +12,7 @@ import Goal from './goalsModel.js';
 import Attendance from './attendanceModel.js';
 import AttendanceRule from './attendanceRulesModel.js';
 import MemberSlots from './memberSlotsModel.js';
-
+import Exercise from './exerciseModel.js';
 
 Tenant.hasMany(Branch,{foreignKey:"tenant_id"});
 Branch.belongsTo(Tenant,{foreignKey:"tenant_id"});
@@ -93,6 +93,9 @@ Attendance.belongsTo(Branch,{foreignKey:'branch_id'});
 User.hasMany(Attendance,{foreignKey:'verified_by'});
 Attendance.belongsTo(User,{foreignKey:'verified_by', as:'verifiedByUser' });
 
+Tenant.hasMany(Exercise,{foreignKey:'tenant_id'});
+Exercise.belongsTo(Tenant,{foreignKey:'tenant_id'});
+
 
 export {
     Tenant,
@@ -108,5 +111,5 @@ export {
     Attendance,
     MemberSlots,
     AttendanceRule,
-    
+    Exercise
 }

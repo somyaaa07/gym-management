@@ -5,10 +5,8 @@ import { tenantApi, userApi, extractErrorMessage } from '../lib/api.js';
 import Button from '../components/ui/Button.jsx';
 import Modal from '../components/ui/Modal.jsx';
 import { Field, Input } from '../components/ui/Field.jsx';
-import { EmptyState } from '../components/ui/Misc.jsx';
+import { EmptyState, PageSpinner } from '../components/ui/Misc.jsx';
 import { useToast } from '../components/ui/Toast.jsx';
-
-const STORAGE_KEY = 'ironline_created_tenants';
 
 const EMPTY_FORM = {
   name: '',
@@ -25,13 +23,7 @@ const EMPTY_ADMIN_FORM = { name: '', email: '', phone: '', password: '' };
 export default function Tenants() {
   usePageMeta('Gyms', 'Provision new gyms on the platform');
   const toast = useToast();
-  const [tenants, setTenants] = useState(() => {
-    try {
-      return JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
-    } catch {
-      return [];
-    }
-  });
+  const [tenants, setTenants] = useState(null);
   const [open, setOpen] = useState(false);
   const [form, setForm] = useState(EMPTY_FORM);
   const [loading, setLoading] = useState(false);
@@ -42,20 +34,28 @@ export default function Tenants() {
   const [adminSaving, setAdminSaving] = useState(false);
   const [adminError, setAdminError] = useState('');
 
-  useEffect(() => {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(tenants));
-  }, [tenants]);
+  const load = () => {
+    tenantApi
+      .list()
+      .then((res) => setTenants(res.data || []))
+      .catch((err) => {
+        setTenants([]);
+        toast.error(extractErrorMessage(err, 'Could not load gyms'));
+      });
+  };
+
+  useEffect(load, []);
 
   const onSubmit = async (e) => {
     e.preventDefault();
     setError('');
     setLoading(true);
     try {
-      const res = await tenantApi.create(form);
-      setTenants((prev) => [{ ...res.data, createdAt: Date.now() }, ...prev]);
-      toast.success('Gym created. Share the ID below with its admin.');
+      await tenantApi.create(form);
+      toast.success('Gym created. Open "Add admin" to give it an owner.');
       setForm(EMPTY_FORM);
       setOpen(false);
+      load();
     } catch (err) {
       setError(extractErrorMessage(err, 'Could not create gym'));
     } finally {
@@ -83,6 +83,7 @@ export default function Tenants() {
       await userApi.create({ ...adminForm, tenant_id: adminTarget.id, role: 'ADMIN' });
       toast.success(`Admin created for ${adminTarget.name}.`);
       setAdminTarget(null);
+      load();
     } catch (err) {
       setAdminError(extractErrorMessage(err, 'Could not create admin'));
     } finally {
@@ -94,15 +95,17 @@ export default function Tenants() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <p className="text-sm text-ink-400 max-w-lg">
-          Gyms created here appear in this list on this device — the API doesn't expose a full tenant
-          directory, so keep each tenant ID handy when creating that gym's admin account.
+          Every gym on the platform. Provision a new one, then hand its tenant ID to an admin — or add
+          the admin account directly from here.
         </p>
         <Button onClick={() => setOpen(true)} className="shrink-0">
           <Plus size={15} /> New gym
         </Button>
       </div>
 
-      {tenants.length === 0 ? (
+      {tenants === null ? (
+        <PageSpinner />
+      ) : tenants.length === 0 ? (
         <EmptyState
           icon={ShieldCheck}
           title="No gyms created yet"

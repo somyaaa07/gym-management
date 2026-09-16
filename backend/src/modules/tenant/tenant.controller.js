@@ -68,6 +68,41 @@ export const createTenant = async (req, res)=>{
     }
 }
 
+export const getAllTenants = async(req,res)=>{
+    try{
+        const tenants = await Tenant.findAll({
+            order:[['createdAt','DESC']]
+        });
+
+        return res.status(200).json({
+            success:true,
+            message:"Tenants fetched successfully",
+            data:tenants.map((tenant)=>({
+                id:tenant.id,
+                name:tenant.name,
+                email:tenant.email,
+                phone:tenant.phone,
+                address_line:tenant.address_line,
+                city:tenant.city,
+                state:tenant.state,
+                postal_code:tenant.postal_code,
+                country:tenant.country,
+                subscription_plan:tenant.subscription_plan,
+                max_branches:tenant.max_branches,
+                status:tenant.status,
+                createdAt:tenant.createdAt
+            }))
+        })
+    }
+    catch(err){
+        console.log("failed to fetch tenants",err)
+        return res.status(500).json({
+            success:false,
+            message:"Internal Server Error"
+        })
+    }
+}
+
 export const getTenant = async(req,res)=>{
     try{
         const tenant_id = req.user.tenant_id;

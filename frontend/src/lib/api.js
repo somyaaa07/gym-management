@@ -41,7 +41,15 @@ export const authApi = {
 // ---------- Tenant ----------
 export const tenantApi = {
   create: (payload) => unwrap(client.post('/tenant', payload)),
+  list: () => unwrap(client.get('/tenant')),
   me: () => unwrap(client.get('/tenant/me')),
+};
+
+// ---------- Attendance (check-in / check-out) ----------
+export const attendanceApi = {
+  checkIn: (payload) => unwrap(client.post('/attendance/checkin', payload)),
+  checkOut: (payload) => unwrap(client.post('/attendance/checkout', payload)),
+  history: (params) => unwrap(client.get('/attendance/attendance-history', { params })),
 };
 
 // ---------- Users (staff) ----------

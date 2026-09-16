@@ -8,6 +8,8 @@ import {
   Repeat,
   Dumbbell,
   ShieldCheck,
+  ScanFace,
+  Fingerprint,
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext.jsx';
 
@@ -24,10 +26,12 @@ const ADMIN_NAV = [
   { to: '/app/members', label: 'Members', icon: UserRound },
   { to: '/app/membership-plans', label: 'Plans', icon: ClipboardList },
   { to: '/app/memberships', label: 'Memberships', icon: Repeat },
+  { to: '/app/attendance', label: 'Attendance', icon: ScanFace },
+  { to: '/app/faceidtest', label: 'Face Registration', icon: Fingerprint },
 ];
 
 // Icons shown on the mobile bottom tab bar — keep to the 5 most-used destinations
-const MOBILE_TAB_ICONS = ['/app/dashboard', '/app/members', '/app/branches', '/app/users', '/app/membership-plans'];
+const MOBILE_TAB_ICONS = ['/app/dashboard', '/app/members', '/app/attendance', '/app/branches', '/app/membership-plans'];
 
 function Brand() {
   return (

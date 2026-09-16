@@ -88,15 +88,9 @@ export const getAllMember = async(req,res)=>{
             }
         })
 
-        if(member.length == 0){
-            return res.status(404).json({
-                success:false,
-                message:"Member not found"
-            })
-        }
-
         return res.status(200).json({
             success:true,
+            message:member.length === 0 ? "No members found" : "Members fetched successfully",
             data:member
         })
     }

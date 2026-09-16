@@ -7,6 +7,7 @@ import { tenantMiddleware } from '../../middleware/tenant.middleware.js';
 const router = express.Router();
 
 router.post('/',authMiddleware,roleMiddleware('SUPER_ADMIN'),TenantController.createTenant);
+router.get('/',authMiddleware,roleMiddleware('SUPER_ADMIN'),TenantController.getAllTenants);
 router.get('/me' , authMiddleware,tenantMiddleware,TenantController.getTenant);
 
 export default router;

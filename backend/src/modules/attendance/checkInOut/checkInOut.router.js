@@ -5,9 +5,9 @@ import {roleMiddleware} from  '../../../middleware/role.middleware.js'
 
 const router = express.Router();
 
-router.post('/checkin',authMiddleware,roleMiddleware('ADMIN','EMPLOYEE'),checkInOutController.checkIn);
-router.post('/checkout',authMiddleware,roleMiddleware('ADMIN','EMPLOYEE'),checkInOutController.checkOut);
+router.post('/checkin',authMiddleware,roleMiddleware('ADMIN','MANAGER','RECEPTIONIST'),checkInOutController.checkIn);
+router.post('/checkout',authMiddleware,roleMiddleware('ADMIN','MANAGER','RECEPTIONIST'),checkInOutController.checkOut);
 
-router.get('/attendance-history',authMiddleware,roleMiddleware('ADMIN','EMPLOYEE'),checkInOutController.getAttendanceHistory);
+router.get('/attendance-history',authMiddleware,roleMiddleware('ADMIN','MANAGER','RECEPTIONIST'),checkInOutController.getAttendanceHistory);
 
 export default router;
