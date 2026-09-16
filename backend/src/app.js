@@ -16,7 +16,8 @@ import healthProfile from './modules/healthProfiles/healthProfile.routes.js';
 import measurementRoutes from './modules/measurement/measurement.router.js';
 import goalsRoute from './modules/goals/goals.router.js';
 import memberSlotRoutes from './modules/attendance/memberSlot/memberSlot.router.js';
-import attendanceRuleRoutes from './modules/attendance/attendanceRule/attendanceRule.router.js'
+import attendanceRuleRoutes from './modules/attendance/attendanceRule/attendanceRule.router.js';
+import checkInOutRoutes from './modules/attendance/checkInOut/checkInOut.router.js';
 
 const app = express()
 app.use(express.json({limit: '50mb'}));
@@ -39,6 +40,7 @@ app.use('/api/v1/measurements',measurementRoutes);
 app.use('/api/v1/goals',goalsRoute);
 app.use('/api/v1/member-slot',memberSlotRoutes);
 app.use('/api/v1/attendance-rule',attendanceRuleRoutes);
+app.use('/api/v1/attendance',checkInOutRoutes);
 
 
 export default app;

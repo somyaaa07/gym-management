@@ -145,7 +145,7 @@ export const getBranchGoals = async (req, res) => {
 export const getGoalsById = async (req, res) => {
     try {
         const tenant_id = req.user.tenant_id;
-        const goal_id = req.params.goal_id;
+        const goal_id = req.params.id;
 
         const goal = await Goal.findOne({
             where: {
