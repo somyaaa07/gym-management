@@ -21,7 +21,7 @@ import checkInOutRoutes from './modules/attendance/checkInOut/checkInOut.router.
 import exerciseRoutes from './modules/exercise/exercise.route.js';
 import workoutPlanRutes from './modules/workout/workoutplan/workoutPlan.routes.js';
 import workoutPlanExercise from './modules/workout/workoutplanexercise/workoutPlanExercise.routes.js';
-
+import DietPlan from './modules/diet/dietPlan/dietPlan.routes.js'
 
 const app = express()
 app.use(express.json({limit: '50mb'}));
@@ -48,5 +48,6 @@ app.use('/api/v1/attendance',checkInOutRoutes);
 app.use('/api/v1/exercise',exerciseRoutes);
 app.use('/api/v1/workout-plan',workoutPlanRutes);
 app.use('/api/v1/workout-plan-exercise',workoutPlanExercise);
+app.use('/api/v1/diet-plan',DietPlan);
 
 export default app;

@@ -15,6 +15,9 @@ import MemberSlots from './memberSlotsModel.js';
 import Exercise from './exerciseModel.js';
 import WorkoutPlan from './workoutPlanModel.js';
 import WorkoutPlanExercise from './woroutPlanExerciseModel.js';
+import DietPlan from './dietPlanModel.js';
+import DietPlanMeal from './dietPlanMealModel.js';
+
 
 Tenant.hasMany(Branch,{foreignKey:"tenant_id"});
 Branch.belongsTo(Tenant,{foreignKey:"tenant_id"});
@@ -113,7 +116,17 @@ WorkoutPlanExercise.belongsTo(WorkoutPlan,{foreignKey:'workout_plan_id'});
 Exercise.hasMany(WorkoutPlanExercise,{foreignKey:'exercise_id'});
 WorkoutPlanExercise.belongsTo(Exercise,{foreignKey:'exercise_id'});
 
+Tenant.hasMany(DietPlan,{foreignKey:'tenant_id'});
+DietPlan.belongsTo(Tenant,{foreignKey:'tenant_id'});
 
+Member.hasMany(DietPlan,{foreignKey:'member_id'});
+DietPlan.belongsTo(Member,{foreignKey:'member_id'});
+
+Branch.hasMany(DietPlan,{foreignKey:'branch_id'});
+DietPlan.belongsTo(Branch,{foreignKey:'branch_id'});
+
+DietPlan.hasMany(DietPlanMeal,{foreignKey:'diet_plan_id'});
+DietPlanMeal.belongsTo(DietPlan,{foreignKey:'diet_plan_id'});
 
 
 export {
@@ -132,5 +145,7 @@ export {
     AttendanceRule,
     Exercise,
     WorkoutPlan,
-    WorkoutPlanExercise
+    WorkoutPlanExercise,
+    DietPlan,
+    DietPlanMeal
 }
