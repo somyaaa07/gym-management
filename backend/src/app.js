@@ -18,6 +18,10 @@ import goalsRoute from './modules/goals/goals.router.js';
 import memberSlotRoutes from './modules/attendance/memberSlot/memberSlot.router.js';
 import attendanceRuleRoutes from './modules/attendance/attendanceRule/attendanceRule.router.js';
 import checkInOutRoutes from './modules/attendance/checkInOut/checkInOut.router.js';
+import exerciseRoutes from './modules/exercise/exercise.route.js';
+import workoutPlanRutes from './modules/workout/workoutplan/workoutPlan.routes.js';
+import workoutPlanExercise from './modules/workout/workoutplanexercise/workoutPlanExercise.routes.js';
+
 
 const app = express()
 app.use(express.json({limit: '50mb'}));
@@ -41,6 +45,8 @@ app.use('/api/v1/goals',goalsRoute);
 app.use('/api/v1/member-slot',memberSlotRoutes);
 app.use('/api/v1/attendance-rule',attendanceRuleRoutes);
 app.use('/api/v1/attendance',checkInOutRoutes);
-
+app.use('/api/v1/exercise',exerciseRoutes);
+app.use('/api/v1/workout-plan',workoutPlanRutes);
+app.use('/api/v1/workout-plan-exercise',workoutPlanExercise);
 
 export default app;

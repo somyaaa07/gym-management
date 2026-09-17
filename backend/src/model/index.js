@@ -13,6 +13,8 @@ import Attendance from './attendanceModel.js';
 import AttendanceRule from './attendanceRulesModel.js';
 import MemberSlots from './memberSlotsModel.js';
 import Exercise from './exerciseModel.js';
+import WorkoutPlan from './workoutPlanModel.js';
+import WorkoutPlanExercise from './woroutPlanExerciseModel.js';
 
 Tenant.hasMany(Branch,{foreignKey:"tenant_id"});
 Branch.belongsTo(Tenant,{foreignKey:"tenant_id"});
@@ -96,6 +98,23 @@ Attendance.belongsTo(User,{foreignKey:'verified_by', as:'verifiedByUser' });
 Tenant.hasMany(Exercise,{foreignKey:'tenant_id'});
 Exercise.belongsTo(Tenant,{foreignKey:'tenant_id'});
 
+Tenant.hasMany(WorkoutPlan,{foreignKey:'tenant_id'});
+WorkoutPlan.belongsTo(Tenant,{foreignKey:'tenant_id'});
+
+Member.hasMany(WorkoutPlan,{foreignKey:'member_id'});
+WorkoutPlan.belongsTo(Member,{foreignKey:'member_id'});
+
+Branch.hasMany(WorkoutPlan,{foreignKey:'branch_id'});
+WorkoutPlan.belongsTo(Branch,{foreignKey:'branch_id'});
+
+WorkoutPlan.hasMany(WorkoutPlanExercise,{foreignKey:'workout_plan_id'});
+WorkoutPlanExercise.belongsTo(WorkoutPlan,{foreignKey:'workout_plan_id'});
+
+Exercise.hasMany(WorkoutPlanExercise,{foreignKey:'exercise_id'});
+WorkoutPlanExercise.belongsTo(Exercise,{foreignKey:'exercise_id'});
+
+
+
 
 export {
     Tenant,
@@ -111,5 +130,7 @@ export {
     Attendance,
     MemberSlots,
     AttendanceRule,
-    Exercise
+    Exercise,
+    WorkoutPlan,
+    WorkoutPlanExercise
 }
