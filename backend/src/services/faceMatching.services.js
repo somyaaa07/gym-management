@@ -1,20 +1,27 @@
-import {comapreFaceEmbeddings} from './faceRecoginition.services.js'
+import { compareFaceEmbeddings } from './faceRecoginition.services.js';
 
-export const findMatchingFace = async (faceEmbedding, faceEmbeddings) => {
+export const findMatchingFace = (faceEmbedding, faceEmbeddings) => {
+
     const MATCH_THRESHOLD = 0.5;
     const MIN_MARGIN = 0.08;
 
     let matchedFace = null;
-     let bestDistance = Infinity;
+    let bestDistance = Infinity;
     let secondBestDistance = Infinity;
 
-        for (const faceRecord of registeredFaces) {
+    for (const faceRecord of faceEmbeddings) {
+
         let currentEmbedding = faceRecord.face_embedding;
+
         if (typeof currentEmbedding === "string") {
             currentEmbedding = JSON.parse(currentEmbedding);
         }
 
-        const { distance } = comapreFaceEmbeddings(currentEmbedding, incomingEmbedding);
+        const { distance } = compareFaceEmbeddings(
+            currentEmbedding,
+            faceEmbedding
+        );
+        console.log(faceRecord.Member?.name, distance);
 
         if (distance < bestDistance) {
             secondBestDistance = bestDistance;
@@ -24,8 +31,19 @@ export const findMatchingFace = async (faceEmbedding, faceEmbeddings) => {
             secondBestDistance = distance;
         }
     }
-     const isAmbiguous = (secondBestDistance - bestDistance) < MIN_MARGIN;
-    const isMatch = matchedFace && bestDistance <= MATCH_THRESHOLD && !isAmbiguous;
 
-    return { matchedFace, bestDistance, isAmbiguous, isMatch };
-}
+    const isAmbiguous =
+        (secondBestDistance - bestDistance) < MIN_MARGIN;
+
+    const isMatch =
+        matchedFace &&
+        bestDistance <= MATCH_THRESHOLD &&
+        !isAmbiguous;
+
+    return {
+        matchedFace,
+        bestDistance,
+        isAmbiguous,
+        isMatch
+    };
+};

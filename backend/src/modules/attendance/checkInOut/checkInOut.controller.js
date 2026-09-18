@@ -27,7 +27,7 @@ export const checkIn = async(req,res)=>{
             const { matchedFace, isMatch } = findMatchingFace(face_embedding, registeredFaces);
 
             if (!isMatch) {
-                return res.status(401).json({
+                return res.status(404).json({
                     success: false,
                     message: "Face not recognized"
                 });
