@@ -23,6 +23,7 @@ import workoutPlanRutes from './modules/workout/workoutplan/workoutPlan.routes.j
 import workoutPlanExercise from './modules/workout/workoutplanexercise/workoutPlanExercise.routes.js';
 import DietPlan from './modules/diet/dietPlan/dietPlan.routes.js';
 import DietPlanMealRoutes from './modules/diet/dietPlanMeal/dietPlanMeal.routes.js';
+import aiRoutes from './modules/ai/ai.routes.js';
 
 const app = express()
 app.use(express.json({limit: '50mb'}));
@@ -51,5 +52,7 @@ app.use('/api/v1/workout-plan',workoutPlanRutes);
 app.use('/api/v1/workout-plan-exercise',workoutPlanExercise);
 app.use('/api/v1/diet-plan',DietPlan);
 app.use('/api/v1/diet-plan-meal',DietPlanMealRoutes);
+app.use('/api/v1/ai',aiRoutes);
+
 
 export default app;

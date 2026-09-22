@@ -17,7 +17,7 @@ import WorkoutPlan from './workoutPlanModel.js';
 import WorkoutPlanExercise from './woroutPlanExerciseModel.js';
 import DietPlan from './dietPlanModel.js';
 import DietPlanMeal from './dietPlanMealModel.js';
-
+import AIGenerationLog from './aiGenerationLogModel.js'
 
 Tenant.hasMany(Branch,{foreignKey:"tenant_id"});
 Branch.belongsTo(Tenant,{foreignKey:"tenant_id"});
@@ -128,6 +128,23 @@ DietPlan.belongsTo(Branch,{foreignKey:'branch_id'});
 DietPlan.hasMany(DietPlanMeal,{foreignKey:'diet_plan_id'});
 DietPlanMeal.belongsTo(DietPlan,{foreignKey:'diet_plan_id'});
 
+Tenant.hasMany(AIGenerationLog,{foreignKey:'tenant_id'});
+AIGenerationLog.belongsTo(Tenant,{foreignKey:'tenant_id'});
+
+Member.hasMany(AIGenerationLog,{foreignKey:'member_id'});
+AIGenerationLog.belongsTo(Member,{foreignKey:'member_id'});
+
+Goal.hasMany(AIGenerationLog,{foreignKey:'goal_id'});
+AIGenerationLog.belongsTo(Goal,{foreignKey:'goal_id'});
+
+WorkoutPlan.hasMany(AIGenerationLog,{foreignKey:'workout_plan_id'});
+AIGenerationLog.belongsTo(WorkoutPlan,{foreignKey:'workout_plan_id'});
+
+DietPlan.hasMany(AIGenerationLog,{foreignKey:'diet_plan_id'});
+AIGenerationLog.belongsTo(DietPlan,{foreignKey:'diet_plan_id'});
+
+
+
 
 export {
     Tenant,
@@ -147,5 +164,6 @@ export {
     WorkoutPlan,
     WorkoutPlanExercise,
     DietPlan,
-    DietPlanMeal
+    DietPlanMeal,
+    AIGenerationLog
 }

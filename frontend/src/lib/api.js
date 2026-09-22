@@ -103,6 +103,22 @@ export const memberMembershipApi = {
   freeze: (id, payload) => unwrap(client.patch(`/member-membership/${id}/freeze`, payload)),
 };
 
+// ---------- Goals ----------
+export const goalApi = {
+  create: (payload) => unwrap(client.post('/goals', payload)),
+  list: () => unwrap(client.get('/goals')),
+  getById: (id) => unwrap(client.get(`/goals/${id}`)),
+  update: (id, payload) => unwrap(client.patch(`/goals/${id}`, payload)),
+  remove: (id) => unwrap(client.delete(`/goals/${id}`)),
+};
+
+// ---------- AI (local Ollama: Llama / Gemma) ----------
+export const aiApi = {
+  models: () => unwrap(client.get('/ai/models')),
+  // local models can take a while on CPU, so no axios timeout; pass `signal` to cancel
+  suggest: (payload, { signal } = {}) => unwrap(client.post('/ai/suggest', payload, { signal, timeout: 0 })),
+};
+
 export const extractErrorMessage = (err, fallback = 'Something went wrong') => {
   const data = err?.response?.data;
   if (!data) return fallback;
