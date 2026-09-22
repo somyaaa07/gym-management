@@ -9,5 +9,5 @@ const router = express.Router();
 router.post('/register',AuthController.register);
 router.post('/login', AuthController.login);
 
-router.get('/me',authMiddleware, tenantMiddleware ,roleMiddleware('ADMIN'), AuthController.getMe);
+router.get('/me',authMiddleware, tenantMiddleware ,roleMiddleware('ADMIN','SUPER_ADMIN'), AuthController.getMe);
 export default router;
