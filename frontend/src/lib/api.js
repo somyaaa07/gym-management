@@ -43,6 +43,8 @@ export const tenantApi = {
   create: (payload) => unwrap(client.post('/tenant', payload)),
   list: () => unwrap(client.get('/tenant')),
   me: () => unwrap(client.get('/tenant/me')),
+  getDetails: (tenantId) =>
+    unwrap(client.get(`/tenant/${tenantId}`)),
 };
 
 // ---------- Attendance (check-in / check-out) ----------

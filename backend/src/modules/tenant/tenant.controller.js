@@ -1,5 +1,5 @@
 import { tenantSchema } from "./tenant.validation.js";
-import { Tenant } from "../../model/index.js";
+import { Tenant, Branch } from "../../model/index.js";
 import { Op } from "sequelize";
 export const createTenant = async (req, res)=>{
     try{
@@ -136,3 +136,74 @@ export const getTenant = async(req,res)=>{
         })
     }
 }
+
+export const getTenantDetails = async (req, res) => {
+    try {
+        const user_id = req.user.id;
+        const tenant_id =req.params.id
+
+        const tenant = await Tenant.findByPk(user_id, {
+            include: [
+                {
+                    model: Branch,
+                    attributes: [
+                        "id",
+                        "tenant_id",
+                        "name",
+                        "code",
+                        "phone",
+                        "email",
+                        "address_line",
+                        "city",
+                        "state",
+                        "postal_code",
+                        "country",
+                        "opening_time",
+                        "closing_time",
+                        "status",
+                        "capacity"
+                    ]
+                }
+            ]
+        });
+
+        if (!tenant) {
+            return res.status(404).json({
+                success: false,
+                message: "Tenant not found"
+            });
+        }
+
+        return res.status(200).json({
+            success: true,
+            message: "Tenant details fetched successfully",
+            data: {
+                id: tenant.id,
+                name: tenant.name,
+                email: tenant.email,
+                phone: tenant.phone,
+                address_line: tenant.address_line,
+                city: tenant.city,
+                state: tenant.state,
+                postal_code: tenant.postal_code,
+                country: tenant.country,
+                subscription_plan: tenant.subscription_plan,
+                max_branches: tenant.max_branches,
+                status: tenant.status,
+                createdAt: tenant.createdAt,
+
+                branch_count: tenant.Branches?.length || 0,
+
+                branches: tenant.Branches || []
+            }
+        });
+
+    } catch (err) {
+        console.error("Failed to fetch tenant details:", err);
+
+        return res.status(500).json({
+            success: false,
+            message: "Internal Server Error"
+        });
+    }
+};
