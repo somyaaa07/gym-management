@@ -9,8 +9,9 @@ import tenantRoutes from './modules/tenant/tenant.route.js';
 import userRoutes from './modules/user/user.route.js';
 import branchRoutes from './modules/branch/branch.route.js';
 import membershipRoutes from './modules/membership/membershipPlan/membershipPlan.routes.js'
-import memberMembershipRoutes from './modules/membership/memberMembership/memberMembership.routes.js'
+import memberMembershipRoutes from './modules/membership/memberMembership/memberMembership.routes.js';
 import members from './modules/membership/member/member.routes.js';
+import memberDashboardRoutes from './modules/memberDashboard/memberDashboard.routes.js';
 import memberFaceId from './modules/face/face.routes.js' ;
 import healthProfile from './modules/healthProfiles/healthProfile.routes.js';
 import measurementRoutes from './modules/measurement/measurement.router.js';
@@ -37,7 +38,8 @@ app.use('/api/v1/auth',authRoutes);
 app.use('/api/v1/tenant',tenantRoutes);
 app.use('/api/v1/users',userRoutes);
 app.use('/api/v1/branches',branchRoutes);
-app.use('/api/v1/members',members)
+app.use('/api/v1/members',members);
+app.use('/api/v1/member-dashboard',memberDashboardRoutes);
 app.use('/api/v1/membership',membershipRoutes);
 app.use('/api/v1/member-membership',memberMembershipRoutes);
 app.use('/api/v1/member-faceId',memberFaceId);
