@@ -1,152 +1,289 @@
-import { createMemberSlotSchema, updateMemberSlotSchema } from "./memberSlot.validation.js";
+import {
+  createMemberSlotSchema,
+  updateMemberSlotSchema,
+} from "./memberSlot.validation.js";
+
 import { Member, MemberSlots } from "../../../model/index.js";
 
+// =====================================================
+// CREATE / UPDATE MEMBER SLOT
+// =====================================================
+
 export const createMemberSlot = async (req, res) => {
-    try {
-        const result = createMemberSlotSchema.safeParse(req.body);
-        if (!result.success) {
-            return res.status(400).json({
-                success: false,
-                message: "Validation Error",
-                error: result.error.issues
-            })
-        }
-        const tenant_id = req.user.tenant_id;
-        const { member_id, slot_start_time, slot_end_time } = result.data;
+  try {
+    // ---------------------------------------------
+    // VALIDATION
+    // ---------------------------------------------
 
-        const member = await Member.findOne({
-            where: {
-                id: member_id,
-                tenant_id
-            }
-        })
-        if (!member) {
-            return res.status(404).json({
-                success: false,
-                message: "Member not found"
-            })
-        }
-        const existingSlot = await MemberSlots.findOne({
-            where: { member_id, tenant_id }
-        });
+    const result = createMemberSlotSchema.safeParse(req.body);
 
-        if (existingSlot) {
-            await existingSlot.update({ slot_start_time, slot_end_time });
-            return res.status(200).json({
-                success: true,
-                message: "Member slot updated successfully",
-                data: existingSlot
-            });
-        }
-        const memberSlot = await MemberSlots.create({
-            member_id,
-            slot_start_time,
-            slot_end_time,
-            tenant_id
-        })
-        return res.status(201).json({
-            success: true,
-            message: "Member slot created successfully",
-            data: memberSlot
-        })
-
+    if (!result.success) {
+      return res.status(400).json({
+        success: false,
+        message: "Validation Error",
+        error: result.error.issues,
+      });
     }
-    catch (err) {
-        console.log("Error in createMemberSlot", err);
-        return res.status(500).json({
-            success: false,
-            message: "Internal server error"
-        })
+
+    // ---------------------------------------------
+    // TENANT
+    // ---------------------------------------------
+
+    const tenant_id = req.user.tenant_id;
+
+    const { member_id, slot_start_time, slot_end_time } = result.data;
+
+    // ---------------------------------------------
+    // FIND MEMBER
+    // ---------------------------------------------
+
+    const member = await Member.findOne({
+      where: {
+        id: member_id,
+        tenant_id,
+      },
+    });
+
+    if (!member) {
+      return res.status(404).json({
+        success: false,
+        message: "Member not found",
+      });
     }
-}
+
+    // ---------------------------------------------
+    // MEMBER'S REGISTERED BRANCH
+    // ---------------------------------------------
+
+    const branch_id = member.branch_id;
+
+    if (!branch_id) {
+      return res.status(400).json({
+        success: false,
+        message: "Member is not assigned to any branch",
+      });
+    }
+
+    // ---------------------------------------------
+    // CHECK EXISTING SLOT
+    // ---------------------------------------------
+
+    const existingSlot = await MemberSlots.findOne({
+      where: {
+        member_id,
+        tenant_id,
+        branch_id,
+      },
+    });
+
+    // ---------------------------------------------
+    // UPDATE EXISTING SLOT
+    // ---------------------------------------------
+
+    if (existingSlot) {
+      await existingSlot.update({
+        slot_start_time,
+        slot_end_time,
+      });
+
+      return res.status(200).json({
+        success: true,
+        message: "Member slot updated successfully",
+        data: existingSlot,
+      });
+    }
+
+    // ---------------------------------------------
+    // CREATE SLOT
+    // ---------------------------------------------
+
+    const memberSlot = await MemberSlots.create({
+      member_id,
+      tenant_id,
+      branch_id,
+      slot_start_time,
+      slot_end_time,
+    });
+
+    return res.status(201).json({
+      success: true,
+      message: "Member slot created successfully",
+      data: memberSlot,
+    });
+  } catch (err) {
+    console.log("Error in createMemberSlot:", err);
+
+    return res.status(500).json({
+      success: false,
+      message: "Internal server error",
+    });
+  }
+};
+
+// =====================================================
+// GET MEMBER SLOT
+// =====================================================
 
 export const getMemberSlots = async (req, res) => {
-    try {
+  try {
+    const tenant_id = req.user.tenant_id;
+    const member_id = req.params.member_id;
 
-        const tenant_id = req.user.tenant_id;
-        const member_id = req.params.member_id;
+    // ---------------------------------------------
+    // FIND MEMBER FIRST
+    // ---------------------------------------------
 
-        const memberSlots = await MemberSlots.findAll({
-            where: { member_id, tenant_id },
-            include: [{
-                model: Member,
-                attributes: ["id", 'name']
-            },]
-        })
+    const member = await Member.findOne({
+      where: {
+        id: member_id,
+        tenant_id,
+      },
+    });
 
-        if(memberSlots.length === 0){
-            return res.status(404).json({
-                success: false,
-                message: "No member slots found"
-            })
-        }
-
-        return res.status(200).json({
-            success: true,
-            message: "Member slots fetched successfully",
-            data: memberSlots
-        })
-
+    if (!member) {
+      return res.status(404).json({
+        success: false,
+        message: "Member not found",
+      });
     }
-    catch (err) {
-        console.log("Error in getMemberSlots", err);
-        return res.status(500).json({
-            success: false,
-            message: "Internal server error"
-        })
 
+    const branch_id = member.branch_id;
+
+    // ---------------------------------------------
+    // GET SLOT
+    // ---------------------------------------------
+
+    const memberSlots = await MemberSlots.findAll({
+      where: {
+        member_id,
+        tenant_id,
+        branch_id,
+      },
+
+      include: [
+        {
+          model: Member,
+
+          attributes: ["id", "name", "branch_id"],
+        },
+      ],
+    });
+
+    if (memberSlots.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: "No member slots found",
+      });
     }
-}
 
-export const updateMemberSlot = async(req,res)=>{
-    try{
+    return res.status(200).json({
+      success: true,
+      message: "Member slots fetched successfully",
+      data: memberSlots,
+    });
+  } catch (err) {
+    console.log("Error in getMemberSlots:", err);
 
-        const result = updateMemberSlotSchema.safeParse(req.body);
-        if (!result.success) {
-            return res.status(400).json({
-                success: false,
-                message: "Invalid request",
-                data: result.error.issues
-            })
-        }
-        const tenant_id = req.user.tenant_id;
-        const member_id = req.params.member_id;
+    return res.status(500).json({
+      success: false,
+      message: "Internal server error",
+    });
+  }
+};
 
-        const {slot_end_time,slot_start_time} = result.data;
+// =====================================================
+// UPDATE MEMBER SLOT
+// =====================================================
 
-        const member = await MemberSlots.findOne({
-            where:{
-                tenant_id:tenant_id,
-                member_id:member_id
-            }
-        })
+export const updateMemberSlot = async (req, res) => {
+  try {
+    // ---------------------------------------------
+    // VALIDATION
+    // ---------------------------------------------
 
-        if(!member){
-            return res.status(404).json
-            ({
-                success: false,
-                message: "Member not found"
-            })
-        }
+    const result = updateMemberSlotSchema.safeParse(req.body);
 
-       await member.update({
-            ...(slot_end_time !== undefined && {slot_end_time}),
-            ...(slot_start_time !== undefined && {slot_start_time})
-        })
-
-
-        return res.status(200).json({
-            success: true,
-            message: "Member slot updated successfully",
-            data: member
-        })
-
+    if (!result.success) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid request",
+        data: result.error.issues,
+      });
     }
-    catch(err){
-        console.log("Error in updateMemberSlot",err)
-        return res.status(500).json({
-            success: false,
-            message: "Internal server error"
-        })
+
+    const tenant_id = req.user.tenant_id;
+    const member_id = req.params.member_id;
+
+    const { slot_end_time, slot_start_time } = result.data;
+
+    // ---------------------------------------------
+    // FIND MEMBER
+    // ---------------------------------------------
+
+    const member = await Member.findOne({
+      where: {
+        id: member_id,
+        tenant_id,
+      },
+    });
+
+    if (!member) {
+      return res.status(404).json({
+        success: false,
+        message: "Member not found",
+      });
     }
-}
+
+    // ---------------------------------------------
+    // GET MEMBER BRANCH
+    // ---------------------------------------------
+
+    const branch_id = member.branch_id;
+
+    // ---------------------------------------------
+    // FIND MEMBER SLOT
+    // ---------------------------------------------
+
+    const memberSlot = await MemberSlots.findOne({
+      where: {
+        tenant_id,
+        branch_id,
+        member_id,
+      },
+    });
+
+    if (!memberSlot) {
+      return res.status(404).json({
+        success: false,
+        message: "Member slot not found",
+      });
+    }
+
+    // ---------------------------------------------
+    // UPDATE
+    // ---------------------------------------------
+
+    await memberSlot.update({
+      ...(slot_end_time !== undefined && {
+        slot_end_time,
+      }),
+
+      ...(slot_start_time !== undefined && {
+        slot_start_time,
+      }),
+    });
+
+    return res.status(200).json({
+      success: true,
+      message: "Member slot updated successfully",
+      data: memberSlot,
+    });
+  } catch (err) {
+    console.log("Error in updateMemberSlot:", err);
+
+    return res.status(500).json({
+      success: false,
+      message: "Internal server error",
+    });
+  }
+};
