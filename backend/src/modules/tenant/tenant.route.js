@@ -21,10 +21,11 @@ router.get(
 router.get(
   "/me",
   authMiddleware,
-  roleMiddleware("SUPER_ADMIN"),
+  roleMiddleware("SUPER_ADMIN","ADMIN"),
   tenantMiddleware,
   TenantController.getTenant,
 );
+
 // Super Admin check particular tenant details
 router.get( "/:tenantId",
     authMiddleware,

@@ -139,10 +139,9 @@ export const getTenant = async(req,res)=>{
 
 export const getTenantDetails = async (req, res) => {
     try {
-        const user_id = req.user.id;
-        const tenant_id =req.params.id
+        const { tenantId } = req.params;
 
-        const tenant = await Tenant.findByPk(user_id, {
+        const tenant = await Tenant.findByPk(tenantId, {
             include: [
                 {
                     model: Branch,

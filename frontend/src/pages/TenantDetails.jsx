@@ -1,5 +1,9 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import {
+    tenantApi,
+    extractErrorMessage,
+} from "../lib/api";
 
 const TenantDetails = () => {
     const { tenantId } = useParams();
@@ -9,40 +13,33 @@ const TenantDetails = () => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
 
-    useEffect(() => {
-        const fetchTenant = async () => {
-            try {
-                const token = localStorage.getItem("token");
+  useEffect(() => {
+    const fetchTenant = async () => {
+        try {
+            setLoading(true);
+            setError("");
 
-                const response = await fetch(
-                    `http://localhost:5001/api/v1/tenant/${tenantId}`,
-                    {
-                        headers: {
-                            Authorization: `Bearer ${token}`,
-                            "Content-Type": "application/json",
-                        },
-                    }
-                );
+            const result = await tenantApi.getDetails(tenantId);
 
-                const result = await response.json();
+            setTenant(result.data);
+        } catch (error) {
+            console.error("Tenant details error:", error);
 
-                if (!response.ok) {
-                    throw new Error(
-                        result.message || "Failed to fetch gym details"
-                    );
-                }
+            setError(
+                extractErrorMessage(
+                    error,
+                    "Failed to fetch gym details"
+                )
+            );
+        } finally {
+            setLoading(false);
+        }
+    };
 
-                setTenant(result.data);
-            } catch (error) {
-                console.error("Tenant details error:", error);
-                setError(error.message);
-            } finally {
-                setLoading(false);
-            }
-        };
-
+    if (tenantId) {
         fetchTenant();
-    }, [tenantId]);
+    }
+}, [tenantId]);
 
     if (loading) {
         return (
