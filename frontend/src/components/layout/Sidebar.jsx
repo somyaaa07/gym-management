@@ -40,7 +40,7 @@ function Brand() {
         <Dumbbell size={16} className="text-white" strokeWidth={2.4} />
       </div>
       <span className="font-display text-xl font-bold tracking-tightish text-white leading-none pt-0.5">
-        IRONLINE
+        Gym Management
       </span>
     </div>
   );
@@ -97,7 +97,7 @@ export default function Sidebar({ mobileOpen, onCloseMobile }) {
 
         <div className="mx-4 mb-5 rounded-2xl bg-white/6 border border-white/10 px-4 py-4">
           <p className="text-[11px] text-white/45 leading-relaxed">
-            Ironline — multi-branch gym operations, built on your API.
+           GYM Management— multi-branch gym operations, built on your API.
           </p>
         </div>
       </aside>

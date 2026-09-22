@@ -74,6 +74,8 @@ export const createUser = async (req, res) => {
                     message: "branch_id is required"
                 });
             }
+                console.log("Looking up branch:", { branch_id, tenant_id }); // 👈 add this
+
 
             if (role === "ADMIN") {
                 return res.status(403).json({
@@ -86,9 +88,11 @@ export const createUser = async (req, res) => {
                 where: {
                     id: branch_id,
                     tenant_id: tenant_id,
-                    status: "ACTIVE"
+                    status: 1
                 }
             });
+                console.log("Branch found:", branch?.toJSON()); // 👈 and this
+
 
             if (!branch) {
                 return res.status(404).json({
@@ -100,6 +104,7 @@ export const createUser = async (req, res) => {
             finalBranchId = branch_id;
         }
 
+       
         // ==========================================
         // CHECK DUPLICATE EMAIL
         // ==========================================
