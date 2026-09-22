@@ -40,7 +40,9 @@ User.init({
             'MANAGER',
             'TRAINER',
             'RECEPTIONIST',
-            'ACCOUNTANT'),
+            'ACCOUNTANT',
+            'MEMBER'
+        ),
         defaultValue: 'ADMIN'
     },
     status: {

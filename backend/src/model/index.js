@@ -40,6 +40,16 @@ Member.belongsTo(Branch,{foreignKey:"branch_id"})
 Tenant.hasMany(MemberMembership,{foreignKey:"tenant_id"});
 MemberMembership.belongsTo(Tenant,{foreignKey:"tenant_id"});
 
+User.hasOne(Member, {
+    foreignKey: "user_id",
+    as: "member"
+});
+
+Member.belongsTo(User, {
+    foreignKey: "user_id",
+    as: "user"
+});
+
 Member.hasMany(MemberMembership,{foreignKey:"member_id"});
 MemberMembership.belongsTo(Member,{foreignKey:"member_id"});
 

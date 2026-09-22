@@ -28,8 +28,7 @@ const isFutureDate = (value) => {
 export default function GoalAiSuggestions({ memberId, goal, preferences }) {
   const [modelKey, setModelKey] = useState('llama');
   const [auto, setAuto] = useState(true);
-  const [status, setStatus] = useState({ reachable: null, models: [] });
-
+const [status, setStatus] = useState({ ok: null, llama: null, gemma: null });
   const [loading, setLoading] = useState(false);
   const [elapsed, setElapsed] = useState(0);
   const [error, setError] = useState('');
@@ -41,19 +40,18 @@ export default function GoalAiSuggestions({ memberId, goal, preferences }) {
   const cacheRef = useRef(new Map());
 
   // Which models are installed in Ollama?
+  // Which models are installed in Ollama?
   useEffect(() => {
     aiApi
       .models()
       .then((res) => {
-        const data = res.data;
-        setStatus(data);
-        const current = data.models.find((m) => m.key === 'llama');
-        if (data.reachable && current && !current.installed) {
-          const other = data.models.find((m) => m.installed);
-          if (other) setModelKey(other.key);
+        const data = res.data; // { llama: { model, installed }, gemma: { model, installed } }
+        setStatus({ ok: true, ...data });
+        if (data.llama && !data.llama.installed && data.gemma?.installed) {
+          setModelKey('gemma');
         }
       })
-      .catch(() => setStatus({ reachable: false, models: [] }));
+      .catch(() => setStatus({ ok: false, llama: null, gemma: null }));
   }, []);
 
   const payload = useMemo(() => {
@@ -135,8 +133,8 @@ export default function GoalAiSuggestions({ memberId, goal, preferences }) {
     return () => clearInterval(t);
   }, [loading]);
 
-  const ollamaDown = status.reachable === false;
-  const stale = result && resultKey !== key;
+  const ollamaDown = status.ok === false;
+    const stale = result && resultKey !== key;
 
   return (
     <div className="rounded-2xl border border-ink-700 bg-ink-800 shadow-soft">
@@ -154,9 +152,9 @@ export default function GoalAiSuggestions({ memberId, goal, preferences }) {
 
         <div className="flex items-center gap-2">
           <div className="inline-flex rounded-xl border border-ink-600 p-0.5 bg-ink-800">
-            {MODEL_OPTIONS.map((m) => {
-              const info = status.models.find((x) => x.key === m.key);
-              const missing = status.reachable && info && !info.installed;
+                      {MODEL_OPTIONS.map((m) => {
+              const info = status[m.key];
+              const missing = status.ok && info && !info.installed;
               return (
                 <button
                   key={m.key}
