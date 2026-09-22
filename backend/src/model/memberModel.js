@@ -9,6 +9,10 @@ Member.init({
         defaultValue:DataTypes.UUIDV4,
         primaryKey:true
     },
+    user_id:{
+        type:DataTypes.UUID,
+        allowNull:true
+    },
     tenant_id:{
         type:DataTypes.UUID,
         allowNull:false
