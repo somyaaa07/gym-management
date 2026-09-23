@@ -20,7 +20,6 @@ import FaceIdTest from "./pages/FaceRegistration.jsx";
 import FaceVerification from "./pages/FaceVerification.jsx";
 import Attendance from "./pages/admin/Attendance.jsx";
 import SetPassword from "./pages/member/SetPassword.jsx";
-import AttendanceAdmin from "./pages/admin/AdminAttendance.jsx";
 export default function App() {
   const { isAuthenticated } = useAuth();
 
@@ -97,7 +96,7 @@ export default function App() {
         <Route
           path="users"
           element={
-            <ProtectedRoute roles={["ADMIN", "SUPER_ADMIN"]}>
+            <ProtectedRoute roles={["ADMIN", "SUPER_ADMIN","BRANCH_ADMIN"]}>
               <Users />
             </ProtectedRoute>
           }
@@ -129,7 +128,7 @@ export default function App() {
         <Route
           path="memberships"
           element={
-            <ProtectedRoute roles={["ADMIN"]}>
+            <ProtectedRoute roles={["ADMIN","BRANCH_ADMIN"]}>
               <MemberMemberships />
             </ProtectedRoute>
           }
@@ -157,15 +156,6 @@ export default function App() {
               <FaceVerification />
             </ProtectedRoute>
           }
-        />
-
-        <Route 
-        path="attendance-history"
-        element={
-          <ProtectedRoute roles={["ADMIN"]}>
-            <AttendanceAdmin/>
-          </ProtectedRoute>
-        }
         />
       </Route>
 

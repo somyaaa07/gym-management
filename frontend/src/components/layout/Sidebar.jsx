@@ -97,7 +97,7 @@ const BRANCH_NAV = [
     icon: UserRound,
   },
   {
-    to: "/app/branch-memberships",
+    to: "/app/memberships",
     label: "Memberships",
     icon: Repeat,
   },
@@ -107,7 +107,7 @@ const BRANCH_NAV = [
     icon: ClipboardList,
   },
   {
-    to: "/app/branch-staff",
+    to: "/app/users",
     label: "Staff",
     icon: Users,
   },
