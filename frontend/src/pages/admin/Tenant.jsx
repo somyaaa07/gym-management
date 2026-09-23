@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react';
 import { Building2 } from 'lucide-react';
-import usePageMeta from '../lib/usePageMeta.js';
-import { tenantApi, extractErrorMessage } from '../lib/api.js';
-import { PageSpinner, EmptyState, Badge } from '../components/ui/Misc.jsx';
+import usePageMeta from '../../lib/usePageMeta.js';
+import { tenantApi, extractErrorMessage } from '../../lib/api.js';
+import { PageSpinner, EmptyState, Badge } from '../../components/ui/Misc.jsx';
 
 export default function Tenant() {
   usePageMeta('My Gym', 'Tenant profile for your organization');

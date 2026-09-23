@@ -72,7 +72,7 @@ const ADMIN_NAV = [
     icon: Repeat,
   },
   {
-    to: "/app/attendance",
+    to: "/app/attendance-history",
     label: "Attendance",
     icon: ScanFace,
   },

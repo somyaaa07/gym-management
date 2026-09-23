@@ -6,20 +6,21 @@ import AppLayout from "./components/layout/AppLayout.jsx";
 import Login from "./pages/Login.jsx";
 import Register from "./pages/Register.jsx";
 import Dashboard from "./pages/Dashboard.jsx";
-import Tenants from "./pages/Tenants.jsx";
-import Tenant from "./pages/Tenant.jsx";
-import TenantDetails from "./pages/TenantDetails.jsx";
-import Branches from "./pages/Branches.jsx";
-import Users from "./pages/Users.jsx";
-import Members from "./pages/Members.jsx";
-import MemberDetail from "./pages/MemberDetail.jsx";
-import MembershipPlans from "./pages/MembershipPlans.jsx";
-import MemberMemberships from "./pages/MemberMemberships.jsx";
+import Tenants from "./pages/super-admin/Tenants.jsx";
+import Tenant from "./pages/admin/Tenant.jsx";
+import TenantDetails from "./pages/super-admin/TenantDetails.jsx";
+import Branches from "./pages/admin/Branches.jsx";
+import Users from "./pages/admin/Users.jsx";
+import Members from "./pages/admin/Members.jsx";
+import MemberDetail from "./pages/admin/MemberDetail.jsx";
+import MembershipPlans from "./pages/admin/MembershipPlans.jsx";
+import MemberMemberships from "./pages/admin/MemberMemberships.jsx";
 import NotFound from "./pages/NotFound.jsx";
 import FaceIdTest from "./pages/FaceRegistration.jsx";
 import FaceVerification from "./pages/FaceVerification.jsx";
-import Attendance from "./pages/Attendance.jsx";
+import Attendance from "./pages/admin/Attendance.jsx";
 import SetPassword from "./pages/member/SetPassword.jsx";
+import AttendanceAdmin from "./pages/admin/AdminAttendance.jsx";
 export default function App() {
   const { isAuthenticated } = useAuth();
 
@@ -156,6 +157,15 @@ export default function App() {
               <FaceVerification />
             </ProtectedRoute>
           }
+        />
+
+        <Route 
+        path="attendance-history"
+        element={
+          <ProtectedRoute roles={["ADMIN"]}>
+            <AttendanceAdmin/>
+          </ProtectedRoute>
+        }
         />
       </Route>
 
