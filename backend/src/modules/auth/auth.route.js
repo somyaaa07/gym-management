@@ -8,6 +8,7 @@ const router = express.Router();
 // router.post('/register',AuthController.register)
 router.post("/register", AuthController.register);
 router.post("/login", AuthController.login);
+router.post('/logout', authMiddleware, AuthController.logout);
 
 router.get(
   "/me",
@@ -16,4 +17,8 @@ router.get(
   roleMiddleware("ADMIN", "SUPER_ADMIN", "BRANCH_ADMIN"),
   AuthController.getMe,
 );
+
+
+
+
 export default router;

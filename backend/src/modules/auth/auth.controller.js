@@ -1,7 +1,9 @@
-import bcrypt from "bcryptjs";
-import { registerSchema, loginSchema } from "./auth.validation.js";
-import { User } from "../../model/index.js";
-import jwt from "jsonwebtoken";
+import bcrypt from 'bcryptjs';
+import {registerSchema,loginSchema} from './auth.validation.js';
+import {User} from '../../model/index.js';
+import jwt from 'jsonwebtoken';
+import crypto from 'crypto';
+import redis from '../../config/redis.js';
 // import { success } from 'zod';
 
 export const register = async (req, res) => {
@@ -180,4 +182,56 @@ export const getMe = async (req, res) => {
   }
 };
 
-export const logout = async (req, res) => {};
+
+export const logout = async(req,res)=>{
+    try{
+        const authHeader = req.headers.authorization;
+
+        const token = authHeader && authHeader.split(" ")[1];
+
+        if(!token){
+            return res.status(401).json({
+                success:false,
+                message:"No token provided"
+            })
+        }
+
+        const decoded = jwt.verify(token,process.env.JWT_SECRET)
+        const tokenHash = crypto.createHash('sha256').update(token).digest('hex')
+
+        const now = Math.floor(Date.now()/1000)
+
+        const ttl = decoded.exp - now // time to live of that particular token in the redis space [memory/RAM]
+
+        if(ttl >0){
+        await redis.set(
+            `blacklist:${tokenHash}`,
+            '1',
+            'EX',
+            ttl
+        )
+    }
+    return res.status(200).json({
+        success:true,
+        message:"User logged out successfully"
+    })
+
+
+
+    }
+    catch(err){
+
+        if(err.name==='TokenExpiredError' || err.name==='JsonWebTokenError'){
+            return res.status(200).json({
+                success:false,
+                message:"Logout Successfully"
+        })}
+
+        console.log("Failed to logout user",err)
+        return res.status(500).json({
+            success:false,
+            message:"Internal Server Error"
+        })
+    }
+    
+}

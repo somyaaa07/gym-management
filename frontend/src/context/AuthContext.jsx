@@ -57,13 +57,18 @@ export function AuthProvider({ children }) {
 
   const [ready, setReady] = useState(true);
 
-  const logout = useCallback(() => {
-    localStorage.removeItem(TOKEN_KEY);
-
-    setToken(null);
-    setUser(null);
-    setProfile(null);
-  }, []);
+const logout = useCallback(async () => {
+    try {
+        await authApi.logout();
+    } catch (err) {
+        console.log("Logout API failed, clearing session anyway", err);
+    } finally {
+        localStorage.removeItem(TOKEN_KEY);
+        setToken(null);
+        setUser(null);
+        setProfile(null);
+    }
+}, []);
 
   useEffect(() => {
     registerUnauthorizedHandler(() => logout());

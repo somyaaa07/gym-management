@@ -1,6 +1,7 @@
 import app from './app.js';
 import {connectDB} from './config/database.js';
 import "./jobs/freezeMembershipJob.js";
+import './config/redis.js'
 
 const PORT = process.env.PORT || 5001;
 

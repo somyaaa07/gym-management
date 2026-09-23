@@ -36,6 +36,7 @@ export const authApi = {
   register: (payload) => unwrap(client.post('/auth/register', payload)),
   login: (payload) => unwrap(client.post('/auth/login', payload)),
   me: () => unwrap(client.get('/auth/me')),
+  logout:() => unwrap(client.post('/auth/logout')),
 };
 
 // ---------- Tenant ----------
