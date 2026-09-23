@@ -118,7 +118,8 @@ export const login = async(req,res)=>{
                 id:user.id,
                 email:user.email,
                 role:user.role,
-                tenant_id:user.tenant_id
+                tenant_id:user.tenant_id,
+                branch_id: user.branch_id
             },
             process.env.JWT_SECRET,
             {

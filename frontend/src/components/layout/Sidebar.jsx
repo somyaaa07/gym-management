@@ -97,9 +97,9 @@ const BRANCH_NAV = [
     icon: UserRound,
   },
   {
-    to: "/app/branch-staff",
-    label: "Staff",
-    icon: Users,
+    to: "/app/branch-memberships",
+    label: "Memberships",
+    icon: Repeat,
   },
   {
     to: "/app/branch-membership-plans",
@@ -107,10 +107,11 @@ const BRANCH_NAV = [
     icon: ClipboardList,
   },
   {
-    to: "/app/branch-memberships",
-    label: "Memberships",
-    icon: Repeat,
+    to: "/app/branch-staff",
+    label: "Staff",
+    icon: Users,
   },
+
   {
     to: "/app/branch-attendance",
     label: "Attendance",
@@ -202,8 +203,9 @@ const MOBILE_TAB_ICONS = [
 const BRANCH_MOBILE_TAB_ICONS = [
   "/app/branch-dashboard",
   "/app/branch-members",
-  "/app/branch-attendance",
   "/app/branch-memberships",
+  "/app/branch-attendance",
+
   "/app/branch-reports",
 ];
 
