@@ -1,14 +1,14 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Repeat, Pencil, Snowflake, Ban } from 'lucide-react';
-import usePageMeta from '../lib/usePageMeta.js';
-import { memberMembershipApi, extractErrorMessage } from '../lib/api.js';
-import Button from '../components/ui/Button.jsx';
-import Modal from '../components/ui/Modal.jsx';
-import { Field, Input, Select } from '../components/ui/Field.jsx';
-import Table from '../components/ui/Table.jsx';
-import { PageSpinner, EmptyState, Badge } from '../components/ui/Misc.jsx';
-import { useToast } from '../components/ui/Toast.jsx';
+import usePageMeta from '../../lib/usePageMeta.js';
+import { memberMembershipApi, extractErrorMessage } from '../../lib/api.js';
+import Button from '../../components/ui/Button.jsx';
+import Modal from '../../components/ui/Modal.jsx';
+import { Field, Input, Select } from '../../components/ui/Field.jsx';
+import Table from '../../components/ui/Table.jsx';
+import { PageSpinner, EmptyState, Badge } from '../../components/ui/Misc.jsx';
+import { useToast } from '../../components/ui/Toast.jsx';
 
 export default function MemberMemberships() {
   usePageMeta('Memberships', 'Every enrollment across your gym');

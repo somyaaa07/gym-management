@@ -1,11 +1,11 @@
 import { useCallback, useEffect, useState } from 'react';
 import { ScanFace, LogIn, LogOut, CheckCircle2, XCircle, AlertCircle, RotateCcw } from 'lucide-react';
-import usePageMeta from '../lib/usePageMeta.js';
-import { attendanceApi, branchApi, memberApi, extractErrorMessage } from '../lib/api.js';
-import FaceCamera from '../components/FaceCamera.jsx';
-import Button from '../components/ui/Button.jsx';
-import { Field, Select } from '../components/ui/Field.jsx';
-import { Spinner } from '../components/ui/Misc.jsx';
+import usePageMeta from '../../lib/usePageMeta.js';
+import { attendanceApi, branchApi, memberApi, extractErrorMessage } from '../../lib/api.js';
+import FaceCamera from '../../components/FaceCamera.jsx';
+import Button from '../../components/ui/Button.jsx';
+import { Field, Select } from '../../components/ui/Field.jsx';
+import { Spinner } from '../../components/ui/Misc.jsx';
 
 const MODES = [
   { value: 'CHECK_IN', label: 'Check in', icon: LogIn },

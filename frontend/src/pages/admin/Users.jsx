@@ -1,14 +1,14 @@
 import { useEffect, useState } from 'react';
 import { Plus, Users as UsersIcon, Pencil, Trash2 } from 'lucide-react';
-import usePageMeta from '../lib/usePageMeta.js';
-import { userApi, branchApi, extractErrorMessage } from '../lib/api.js';
-import Button from '../components/ui/Button.jsx';
-import Modal from '../components/ui/Modal.jsx';
-import ConfirmDialog from '../components/ui/ConfirmDialog.jsx';
-import { Field, Input, Select } from '../components/ui/Field.jsx';
-import Table from '../components/ui/Table.jsx';
-import { PageSpinner, EmptyState, Badge } from '../components/ui/Misc.jsx';
-import { useToast } from '../components/ui/Toast.jsx';
+import usePageMeta from '../../lib/usePageMeta.js';
+import { userApi, branchApi, extractErrorMessage } from '../../lib/api.js';
+import Button from '../../components/ui/Button.jsx';
+import Modal from '../../components/ui/Modal.jsx';
+import ConfirmDialog from '../../components/ui/ConfirmDialog.jsx';
+import { Field, Input, Select } from '../../components/ui/Field.jsx';
+import Table from '../../components/ui/Table.jsx';
+import { PageSpinner, EmptyState, Badge } from '../../components/ui/Misc.jsx';
+import { useToast } from '../../components/ui/Toast.jsx';
 
 const ROLES = ['MANAGER', 'TRAINER', 'RECEPTIONIST', 'ACCOUNTANT'];
 

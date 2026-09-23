@@ -1,13 +1,13 @@
 import { useEffect, useState } from 'react';
 import { Plus, ClipboardList, Pencil, Trash2 } from 'lucide-react';
-import usePageMeta from '../lib/usePageMeta.js';
-import { membershipPlanApi, extractErrorMessage } from '../lib/api.js';
-import Button from '../components/ui/Button.jsx';
-import Modal from '../components/ui/Modal.jsx';
-import ConfirmDialog from '../components/ui/ConfirmDialog.jsx';
-import { Field, Input, Select, Textarea } from '../components/ui/Field.jsx';
-import { PageSpinner, EmptyState, Badge } from '../components/ui/Misc.jsx';
-import { useToast } from '../components/ui/Toast.jsx';
+import usePageMeta from '../../lib/usePageMeta.js';
+import { membershipPlanApi, extractErrorMessage } from '../../lib/api.js';
+import Button from '../../components/ui/Button.jsx';
+import Modal from '../../components/ui/Modal.jsx';
+import ConfirmDialog from '../../components/ui/ConfirmDialog.jsx';
+import { Field, Input, Select, Textarea } from '../../components/ui/Field.jsx';
+import { PageSpinner, EmptyState, Badge } from '../../components/ui/Misc.jsx';
+import { useToast } from '../../components/ui/Toast.jsx';
 
 const EMPTY_FORM = {
   name: '',

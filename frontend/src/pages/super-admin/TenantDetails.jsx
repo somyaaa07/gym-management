@@ -3,7 +3,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import {
     tenantApi,
     extractErrorMessage,
-} from "../lib/api";
+} from "../../lib/api";
 
 const TenantDetails = () => {
     const { tenantId } = useParams();

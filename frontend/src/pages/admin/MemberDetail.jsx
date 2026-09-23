@@ -1,14 +1,14 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { ArrowLeft, Plus, Snowflake, Ban, Phone, Mail, MapPin, CalendarDays, Target } from 'lucide-react';
-import usePageMeta from '../lib/usePageMeta.js';
-import { memberApi, membershipPlanApi, memberMembershipApi, goalApi, extractErrorMessage } from '../lib/api.js';
-import Button from '../components/ui/Button.jsx';
-import Modal from '../components/ui/Modal.jsx';
-import { Field, Input, Select, Textarea } from '../components/ui/Field.jsx';
-import { PageSpinner, Badge, EmptyState } from '../components/ui/Misc.jsx';
-import { useToast } from '../components/ui/Toast.jsx';
-import GoalAiSuggestions from '../components/ai/GoalSuggestion.jsx';
+import usePageMeta from '../../lib/usePageMeta.js';
+import { memberApi, membershipPlanApi, memberMembershipApi, goalApi, extractErrorMessage } from '../../lib/api.js';
+import Button from '../../components/ui/Button.jsx';
+import Modal from '../../components/ui/Modal.jsx';
+import { Field, Input, Select, Textarea } from '../../components/ui/Field.jsx';
+import { PageSpinner, Badge, EmptyState } from '../../components/ui/Misc.jsx';
+import { useToast } from '../../components/ui/Toast.jsx';
+import GoalAiSuggestions from '../../components/ai/GoalSuggestion.jsx';
 
 const EMPTY_ENROLL = { membership_plan_id: '', start_date: new Date().toISOString().slice(0, 10), discount: 0, payment_status: 'PAID', auto_renew: false };
 const EMPTY_FREEZE = { freeze_start_date: '', freeze_end_date: '' };
