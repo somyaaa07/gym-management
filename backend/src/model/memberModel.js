@@ -11,7 +11,8 @@ Member.init({
     },
     user_id:{
         type:DataTypes.UUID,
-        allowNull:true
+        allowNull:true,
+        unique:true
     },
     tenant_id:{
         type:DataTypes.UUID,
@@ -73,7 +74,11 @@ Member.init({
     tableName:'members',
     timestamps:true,
     createdAt:'created_at',
-    updatedAt:'updated_at'
+    updatedAt:'updated_at',
+    indexes:[
+        { unique:true, fields:['tenant_id','email'], name:'unique_member_email_per_tenant' },
+        { unique:true, fields:['tenant_id','phone'], name:'unique_member_phone_per_tenant' }
+    ]
 })
 
 export default Member;

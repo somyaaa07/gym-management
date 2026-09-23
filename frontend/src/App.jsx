@@ -19,7 +19,7 @@ import NotFound from "./pages/NotFound.jsx";
 import FaceIdTest from "./pages/FaceRegistration.jsx";
 import FaceVerification from "./pages/FaceVerification.jsx";
 import Attendance from "./pages/Attendance.jsx";
-
+import SetPassword from "./pages/member/SetPassword.jsx";
 export default function App() {
   const { isAuthenticated } = useAuth();
 
@@ -158,6 +158,9 @@ export default function App() {
           }
         />
       </Route>
+
+              <Route path="/set-password" element={<SetPassword />} />
+
 
       <Route path="*" element={<NotFound />} />
     </Routes>

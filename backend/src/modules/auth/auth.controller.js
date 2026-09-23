@@ -89,6 +89,20 @@ export const login = async(req,res)=>{
                 message:"User not found"
             })
         }
+          if(!user.password){
+            return res.status(403).json({
+                success:false,
+                message:"Password not set yet. Please use the set-password link sent to your email."
+            })
+        }
+
+        // 🔒 inactive/suspended users login na kar payein
+        if(user.status !== 'ACTIVE'){
+            return res.status(403).json({
+                success:false,
+                message:"Your account is not active. Please contact admin."
+            })
+        }
 
         const isPasswordValid = await bcrypt.compare(password,user.password);
 
@@ -111,11 +125,18 @@ export const login = async(req,res)=>{
                 expiresIn:process.env.JWT_EXPIRES_IN || '1d'
             }
         )
+           await user.update({ last_login: new Date() });
 
         return res.status(200).json({
             success:true,
             message:"Login Successful",
-            token:token
+            token:token,
+                data:{
+                id:user.id,
+                name:user.name,
+                email:user.email,
+                role:user.role
+            }
         })
 
     }
