@@ -92,7 +92,7 @@ const BRANCH_NAV = [
     icon: LayoutGrid,
   },
   {
-    to: "/app/branch-members",
+    to: "/app/members",
     label: "Members",
     icon: UserRound,
   },
