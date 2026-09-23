@@ -36,6 +36,21 @@ export default function Users() {
   const { user } = useAuth();
 
   const load = () => {
+    if (user?.role === "BRANCH_ADMIN") {
+      if (!user?.branch_id) {
+        setUsers([]);
+        return;
+      }
+
+      userApi
+        .getByBranch(user.branch_id)
+        .then((res) => setUsers(res.data))
+        .catch(() => setUsers([]));
+
+      return;
+    }
+
+    // ADMIN / SUPER_ADMIN
     userApi
       .list()
       .then((res) => setUsers(res.data))
@@ -43,17 +58,29 @@ export default function Users() {
   };
 
   useEffect(() => {
-    load();
-    branchApi
-      .list()
-      .then((res) => setBranches(res.data))
-      .catch(() => setBranches([]));
-  }, []);
+    if (!user) return;
 
+    load();
+
+    if (user.role === "ADMIN" || user.role === "SUPER_ADMIN") {
+      branchApi
+        .list()
+        .then((res) => setBranches(res.data))
+        .catch(() => setBranches([]));
+    }
+  }, [user?.role, user?.branch_id]);
+
+  console.log("AUTH USER:", user);
+  console.log("ROLE:", user?.role);
+  console.log("BRANCH ID:", user?.branch_id);
   const branchName = (id) => branches.find((b) => b.id === id)?.name || "—";
 
   const openCreate = () => {
-    setForm({ ...EMPTY_FORM, branch_id: branches[0]?.id || "" });
+    setForm({
+      ...EMPTY_FORM,
+      branch_id: user?.role === "BRANCH_ADMIN" ? user.branch_id : "",
+    });
+
     setError("");
     setModal({ mode: "create" });
   };
@@ -74,14 +101,25 @@ export default function Users() {
   const onSubmit = async (e) => {
     e.preventDefault();
     setError("");
-    if (!branches.length) {
-      setError("Create a branch first — staff must belong to one.");
+
+    const isBranchAdmin = user?.role === "BRANCH_ADMIN";
+
+    const branch_id = isBranchAdmin ? user?.branch_id : form.branch_id;
+
+    if (!branch_id) {
+      setError("Please select a branch.");
       return;
     }
+
     setSaving(true);
+
     try {
       if (modal.mode === "create") {
-        await userApi.create(form);
+        await userApi.create({
+          ...form,
+          branch_id,
+        });
+
         toast.success("Staff member added.");
       } else {
         const payload = {
@@ -89,12 +127,18 @@ export default function Users() {
           email: form.email,
           phone: form.phone,
           role: form.role,
-          branch_id: form.branch_id,
+          branch_id,
         };
-        if (form.password) payload.password = form.password;
+
+        if (form.password) {
+          payload.password = form.password;
+        }
+
         await userApi.update(modal.data.id, payload);
+
         toast.success("Staff member updated.");
       }
+
       setModal(null);
       load();
     } catch (err) {
