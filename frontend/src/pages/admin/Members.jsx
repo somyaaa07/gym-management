@@ -24,10 +24,16 @@ const EMPTY_FORM = {
   branch_id: '',
 };
 
-export default function Members() {
-  usePageMeta('Members', 'Everyone training under your gym');
+export default function Members({branchId}) {
+ usePageMeta(
+    'Members',
+    branchId
+      ? 'Members in this branch'
+      : 'Everyone training under your gym'
+  );
   const toast = useToast();
   const navigate = useNavigate();
+
   const [members, setMembers] = useState(null);
   const [branches, setBranches] = useState([]);
   const [modal, setModal] = useState(null);
@@ -37,17 +43,28 @@ export default function Members() {
   const [deleteTarget, setDeleteTarget] = useState(null);
   const [deleting, setDeleting] = useState(false);
 
+
+  
   const load = () => {
-    memberApi
-      .list()
-      .then((res) => setMembers(res.data))
-      .catch(() => setMembers([]));
+    const request = branchId ? memberApi.getByBranch(branchId)
+: memberApi.list();
+
+
+    request
+    .then((res) => setMembers(res.data))
+    .catch(() => setMembers([]));
   };
 
   useEffect(() => {
     load();
-    branchApi.list().then((res) => setBranches(res.data)).catch(() => setBranches([]));
-  }, []);
+    if (!branchId) {
+      branchApi
+        .list()
+        .then((res) => setBranches(res.data))
+        .catch(() => setBranches([]));
+    }
+
+  }, [branchId]);
 
   const branchName = (id) => branches.find((b) => b.id === id)?.name || '—';
 

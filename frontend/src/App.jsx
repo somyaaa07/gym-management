@@ -22,7 +22,7 @@ import Attendance from "./pages/admin/Attendance.jsx";
 import SetPassword from "./pages/member/SetPassword.jsx";
 import AttendanceAdmin from "./pages/admin/AdminAttendance.jsx";
 export default function App() {
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated ,user} = useAuth();
 
   return (
     <Routes>
@@ -102,18 +102,35 @@ export default function App() {
             </ProtectedRoute>
           }
         />
-        <Route
+        {/* <Route
           path="members"
           element={
-            <ProtectedRoute roles={["ADMIN"]}>
+            <ProtectedRoute roles={["ADMIN","BRANCH_ADMIN"]}>
               <Members />
             </ProtectedRoute>
           }
-        />
+        /> */}
+
+     <Route 
+  path="members" 
+  element={ 
+    <ProtectedRoute>
+      <Members 
+        branchId={
+          user?.role === "BRANCH_ADMIN"
+            ? user?.branch_id
+            : undefined
+        } 
+      />
+    </ProtectedRoute>
+  } 
+/>
+          
+      
         <Route
           path="members/:id"
           element={
-            <ProtectedRoute roles={["ADMIN"]}>
+            <ProtectedRoute roles={["ADMIN","BRANCH_ADMIN"]}>
               <MemberDetail />
             </ProtectedRoute>
           }
@@ -121,7 +138,7 @@ export default function App() {
         <Route
           path="membership-plans"
           element={
-            <ProtectedRoute roles={["ADMIN"]}>
+            <ProtectedRoute roles={["ADMIN","BRANCH_ADMIN"]}>
               <MembershipPlans />
             </ProtectedRoute>
           }
@@ -129,7 +146,7 @@ export default function App() {
         <Route
           path="memberships"
           element={
-            <ProtectedRoute roles={["ADMIN"]}>
+            <ProtectedRoute roles={["ADMIN","BRANCH_ADMIN"]}>
               <MemberMemberships />
             </ProtectedRoute>
           }
@@ -162,7 +179,7 @@ export default function App() {
         <Route 
         path="attendance-history"
         element={
-          <ProtectedRoute roles={["ADMIN"]}>
+          <ProtectedRoute roles={["ADMIN","BRANCH_ADMIN"]}>
             <AttendanceAdmin/>
           </ProtectedRoute>
         }
