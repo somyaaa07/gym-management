@@ -6,6 +6,7 @@ import {roleMiddleware} from '../../../middleware/role.middleware.js';
 const router = express.Router();
 
 router.post('/',authMiddleware,roleMiddleware('ADMIN'),memberController.createMember);
+router.post("/set-password", memberController.setPassword);
 
 router.get('/',authMiddleware,roleMiddleware('ADMIN'),memberController.getAllMember);
 router.get('/branch/:id', authMiddleware, roleMiddleware('ADMIN'), memberController.getBranchMembers);

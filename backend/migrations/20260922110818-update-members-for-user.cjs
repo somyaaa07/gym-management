@@ -7,6 +7,7 @@ module.exports = {
     await queryInterface.addColumn('members', 'user_id', {
       type: Sequelize.UUID,
       allowNull: true,
+      unique:true,
       references: {
         model: 'users',
         key: 'id'

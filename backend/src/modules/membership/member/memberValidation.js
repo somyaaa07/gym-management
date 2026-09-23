@@ -28,3 +28,8 @@ export const updateMemberValidationSchema = z.object({
     joining_date:z.coerce.date().optional(),
     branch_id:z.string().uuid().optional(),
 })
+
+export const setPasswordValidationSchema = z.object({
+    token: z.string().min(1),
+    password: z.string().min(8)
+});

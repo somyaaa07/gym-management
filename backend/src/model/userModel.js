@@ -27,12 +27,22 @@ User.init({
         unique: true
     },
     phone: {
-    type: DataTypes.STRING,
-    allowNull: true
-},
+        type: DataTypes.STRING,
+        allowNull: true
+    },
+
+
     password: {
         type: DataTypes.STRING,
-        allowNull: false
+        allowNull: true
+    },
+    reset_token: {          
+        type: DataTypes.STRING,
+        allowNull: true
+    },
+    reset_token_expiry: {   
+        type: DataTypes.DATE,
+        allowNull: true
     },
     role: {
         type: DataTypes.ENUM('SUPER_ADMIN',
@@ -55,12 +65,12 @@ User.init({
         type: DataTypes.DATE,
         allowNull: true
     },
-   
+
 
 
 }, {
-  
-        sequelize,
+
+    sequelize,
     modelName: 'User',
     tableName: 'users',
 
