@@ -1,4 +1,4 @@
-import { Loader2 } from 'lucide-react';
+import { Loader2 } from "lucide-react";
 
 const VARIANTS = {
   primary: `
@@ -41,19 +41,19 @@ const VARIANTS = {
 };
 
 const SIZES = {
-  sm: 'h-9 px-3.5 text-xs',
-  md: 'h-11 px-5 text-sm',
-  lg: 'h-12.5 px-6 text-sm',
+  sm: "h-9 px-3.5 text-xs",
+  md: "h-11 px-5 text-sm",
+  lg: "h-12.5 px-6 text-sm",
 };
 
 export default function Button({
   children,
-  variant = 'primary',
-  size = 'md',
+  variant = "primary",
+  size = "md",
   loading = false,
-  className = '',
+  className = "",
   disabled = false,
-  type = 'button',
+  type = "button",
   leftIcon,
   rightIcon,
   ...rest
@@ -87,7 +87,7 @@ export default function Button({
       {...rest}
     >
       {/* Subtle shine */}
-      {variant === 'primary' && !isDisabled && (
+      {variant === "primary" && !isDisabled && (
         <span
           className="
             pointer-events-none absolute inset-0
@@ -103,18 +103,15 @@ export default function Button({
       )}
 
       {/* Content */}
+      {/* Content */}
       <span className="relative inline-flex items-center justify-center gap-2">
         {loading ? (
-          <Loader2
-            size={15}
-            strokeWidth={2.5}
-            className="animate-spin"
-          />
+          <Loader2 size={15} strokeWidth={2.5} className="animate-spin" />
         ) : (
           leftIcon
         )}
 
-        <span>{children}</span>
+        <span className="inline-flex items-center gap-2">{children}</span>
 
         {!loading && rightIcon && rightIcon}
       </span>

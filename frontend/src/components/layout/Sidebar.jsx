@@ -33,6 +33,8 @@ const SUPER_ADMIN_NAV = [
   },
 ];
 
+// ADMIN SIDEBAR
+
 const ADMIN_NAV = [
   {
     to: "/app/dashboard",
@@ -78,6 +80,51 @@ const ADMIN_NAV = [
     to: "/app/faceidtest",
     label: "Face Registration",
     icon: Fingerprint,
+  },
+];
+
+//BRANCH SIDEBAR
+
+const BRANCH_NAV = [
+  {
+    to: "/app/branch-dashboard",
+    label: "Overview",
+    icon: LayoutGrid,
+  },
+  {
+    to: "/app/branch-members",
+    label: "Members",
+    icon: UserRound,
+  },
+  {
+    to: "/app/branch-staff",
+    label: "Staff",
+    icon: Users,
+  },
+  {
+    to: "/app/branch-membership-plans",
+    label: "Plans",
+    icon: ClipboardList,
+  },
+  {
+    to: "/app/branch-memberships",
+    label: "Memberships",
+    icon: Repeat,
+  },
+  {
+    to: "/app/branch-attendance",
+    label: "Attendance",
+    icon: ScanFace,
+  },
+  {
+    to: "/app/branch-face-registration",
+    label: "Face Registration",
+    icon: Fingerprint,
+  },
+  {
+    to: "/app/branch-reports",
+    label: "Reports",
+    icon: TrendingUp,
   },
 ];
 
@@ -152,6 +199,14 @@ const MOBILE_TAB_ICONS = [
   "/app/membership-plans",
 ];
 
+const BRANCH_MOBILE_TAB_ICONS = [
+  "/app/branch-dashboard",
+  "/app/branch-members",
+  "/app/branch-attendance",
+  "/app/branch-memberships",
+  "/app/branch-reports",
+];
+
 function Brand() {
   return (
     <div className="flex items-center gap-2.5 px-6 h-16 shrink-0">
@@ -177,6 +232,8 @@ export default function Sidebar({ mobileOpen, onCloseMobile }) {
     items = SUPER_ADMIN_NAV;
   } else if (user?.role === "MEMBER") {
     items = MEMBER_NAV;
+  } else if (user?.role === "BRANCH_ADMIN") {
+    items = BRANCH_NAV;
   } else {
     items = ADMIN_NAV;
   }
@@ -186,7 +243,11 @@ export default function Sidebar({ mobileOpen, onCloseMobile }) {
   const mobileItems =
     user?.role === "MEMBER"
       ? items.filter((i) => MEMBER_MOBILE_TAB_ICONS.includes(i.to)).slice(0, 5)
-      : items.filter((i) => MOBILE_TAB_ICONS.includes(i.to)).slice(0, 5);
+      : user?.role === "BRANCH_ADMIN"
+        ? items
+            .filter((i) => BRANCH_MOBILE_TAB_ICONS.includes(i.to))
+            .slice(0, 5)
+        : items.filter((i) => MOBILE_TAB_ICONS.includes(i.to)).slice(0, 5);
 
   return (
     <>
@@ -200,7 +261,6 @@ export default function Sidebar({ mobileOpen, onCloseMobile }) {
       )}
 
       {/* DESKTOP / TABLET SIDEBAR */}
-      
 
       <aside
         className={`
@@ -219,7 +279,7 @@ export default function Sidebar({ mobileOpen, onCloseMobile }) {
         <Brand />
 
         {/* NAVIGATION */}
-        
+
         <nav className="flex-1 px-4 py-4 space-y-1.5 overflow-y-auto">
           {items.map(({ to, label, icon: Icon }) => (
             <NavLink
@@ -268,8 +328,6 @@ export default function Sidebar({ mobileOpen, onCloseMobile }) {
             </NavLink>
           ))}
         </nav>
-
-       
 
         <div className="mx-4 mb-5 rounded-2xl bg-white/6 border border-white/10 px-4 py-4">
           <p className="text-[11px] text-white/45 leading-relaxed">

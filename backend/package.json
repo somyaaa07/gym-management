@@ -24,6 +24,7 @@
     "multer": "^2.2.0",
     "mysql2": "^3.23.4",
     "node-cron": "^4.6.0",
+    "nodemailer": "^10.0.10",
     "sequelize": "^6.37.8",
     "zod": "^4.4.3"
   },
