@@ -65,8 +65,8 @@ export default function Topbar({ title, subtitle, onOpenMobile }) {
                   <p className="text-[10px] text-ink-500 mt-0.5">{ROLE_LABELS[user?.role] || user?.role}</p>
                 </div>
                 <button
-                  onClick={() => {
-                    logout();
+                  onClick={async() => {
+                    await logout();
                     navigate('/login');
                   }}
                   className="flex w-full items-center gap-2 px-4 py-3 text-xs font-medium text-ember-500 hover:bg-ember-500/8 transition-colors"
