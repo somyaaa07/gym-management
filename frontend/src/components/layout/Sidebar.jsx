@@ -102,7 +102,7 @@ const BRANCH_NAV = [
     icon: Repeat,
   },
   {
-    to: "/app/branch-membership-plans",
+    to: "/app/membership-plans",
     label: "Plans",
     icon: ClipboardList,
   },
