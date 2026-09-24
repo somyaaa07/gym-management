@@ -5,14 +5,14 @@ import { roleMiddleware } from '../../middleware/role.middleware.js';
 
 const router = express.Router();
 
-router.post('/' , authMiddleware, roleMiddleware('ADMIN'), goalController.createGoal);
+router.post('/' , authMiddleware, roleMiddleware('ADMIN','MEMBER'), goalController.createGoal);
 
 router.get('/', authMiddleware, roleMiddleware('ADMIN'), goalController.getAllGoals);
-router.get('/branch/:branch_id',authMiddleware,roleMiddleware('ADMIN'), goalController.getBranchGoals);
-router.get('/:id' , authMiddleware , roleMiddleware('ADMIN'), goalController.getGoalsById);
+router.get('/branch/:branch_id',authMiddleware,roleMiddleware('ADMIN','BRANCH_ADMIN'), goalController.getBranchGoals);
+router.get('/:id' , authMiddleware , roleMiddleware('ADMIN','MEMBER','BRANCH_ADMIN'), goalController.getGoalsById);
 
-router.patch('/:id' , authMiddleware ,roleMiddleware('ADMIN'), goalController.updateGoals);
-router.delete('/:id' , authMiddleware , roleMiddleware('ADMIN'), goalController.deleteGoal);
+router.patch('/:id' , authMiddleware ,roleMiddleware('ADMIN','MEMBER'), goalController.updateGoals);
+router.delete('/:id' , authMiddleware , roleMiddleware('ADMIN','BRANCH_ADMIN'), goalController.deleteGoal);
 
 
 export default router;

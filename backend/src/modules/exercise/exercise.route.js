@@ -5,7 +5,7 @@ import {roleMiddleware} from '../../middleware/role.middleware.js';
 
 const router = express.Router();
 
-router.post('/', authMiddleware, roleMiddleware('ADMIN'), exerciseController.createExercise);
+router.post('/', authMiddleware, roleMiddleware('ADMIN','TRAINER'), exerciseController.createExercise);
 
 router.get('/', authMiddleware, roleMiddleware('ADMIN', 'TRAINER'), exerciseController.getAllExercise);
 
