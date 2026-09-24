@@ -9,7 +9,7 @@ router.post('/', authMiddleware, roleMiddleware('ADMIN'), exerciseController.cre
 
 router.get('/', authMiddleware, roleMiddleware('ADMIN', 'TRAINER'), exerciseController.getAllExercise);
 
-router.get('/:id', authMiddleware, roleMiddleware('ADMIN', 'TRAINER'), exerciseController.getExerciseById);
+router.get('/:id', authMiddleware, roleMiddleware('ADMIN', 'TRAINER','MEMBER'), exerciseController.getExerciseById);
 
 router.patch('/:id', authMiddleware, roleMiddleware('ADMIN'), exerciseController.updateExercise);
 
