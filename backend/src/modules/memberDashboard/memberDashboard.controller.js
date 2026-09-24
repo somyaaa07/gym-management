@@ -28,15 +28,7 @@ export const getMemberDashboard = async (req, res) => {
          *
          * const member_id = req.user.id;
          */
-        const member_id = req.user.member_id || req.user.id;
 
-
-        if (!member_id) {
-            return res.status(401).json({
-                success: false,
-                message: "Member ID not found in authentication"
-            });
-        }
 
 
         // =====================================================
@@ -45,8 +37,10 @@ export const getMemberDashboard = async (req, res) => {
 
         const member = await Member.findOne({
             where: {
-                id: member_id,
-                tenant_id
+
+                tenant_id, ...(req.user.member_id
+                    ? { id: req.user.member_id }   
+                    : { user_id: req.user.id }),
             },
             attributes: [
                 "id",
@@ -74,8 +68,7 @@ export const getMemberDashboard = async (req, res) => {
                 message: "Member not found"
             });
         }
-
-
+        const member_id = member.id;
         const branch_id = member.branch_id;
 
 

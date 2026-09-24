@@ -143,7 +143,7 @@ const MEMBER_NAV = [
     icon: ClipboardList,
   },
   {
-    to: "/app/my-slot",
+    to: "/app/myslotshistory",
     label: "My Slot",
     icon: CalendarClock,
   },

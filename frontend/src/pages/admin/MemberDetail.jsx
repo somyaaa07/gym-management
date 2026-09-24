@@ -210,11 +210,22 @@ export default function MemberDetail() {
           <InfoRow icon={Mail} label="Email" value={member.email} />
           <InfoRow icon={CalendarDays} label="Joined" value={String(member.joining_date).slice(0, 10)} />
           <InfoRow icon={MapPin} label="Address" value={member.address || '—'} />
-          <InfoRow
-            icon={Hash}
-            label="Member ID"
-            value={<span className="font-mono text-xs break-all">{member.id}</span>}
-          />
+       <InfoRow
+  icon={Hash}
+  label="Member ID (click to copy)"
+  value={
+    <button
+      type="button"
+      onClick={() => {
+        navigator.clipboard.writeText(member.id);
+        toast.success('Member ID copied.');
+      }}
+      className="font-mono text-xs break-all text-left hover:text-volt-500"
+    >
+      {member.id}
+    </button>
+  }
+/>
         </div>
       </div>
 

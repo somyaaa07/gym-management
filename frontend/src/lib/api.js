@@ -101,6 +101,11 @@ export const memberApi = {
   remove: (id) => unwrap(client.delete(`/members/${id}`)),
 };
 
+// ---------- Member Dashboard ----------
+export const memberDashboardApi = {
+  get: () => unwrap(client.get('/member-dashboard')),
+};
+
 // ---------- Membership Plans ----------
 export const membershipPlanApi = {
   create: (payload) => unwrap(client.post('/membership', payload)),

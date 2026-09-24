@@ -21,37 +21,19 @@ import FaceVerification from "./pages/FaceVerification.jsx";
 import Attendance from "./pages/admin/Attendance.jsx";
 import SetPassword from "./pages/member/SetPassword.jsx";
 import AttendanceAdmin from "./pages/admin/AdminAttendance.jsx";
-
+import MemberDashboard from "./pages/member/memberDashboard.jsx";
+import MemberSlotHistory from "./pages/member/memberslotHistory.jsx";
 export default function App() {
-  const { isAuthenticated ,user} = useAuth();
+const { isAuthenticated, user } = useAuth();
+const home = user?.role === "MEMBER" ? "/app/member-dashboard" : "/app/member-dashboard";
 
   return (
     <Routes>
-      <Route
-        path="/"
-        element={
-          <Navigate
-            to={isAuthenticated ? "/app/dashboard" : "/login"}
-            replace
-          />
-        }
-      />
-      <Route
-        path="/login"
-        element={
-          isAuthenticated ? <Navigate to="/app/dashboard" replace /> : <Login />
-        }
-      />
-      <Route
-        path="/register"
-        element={
-          isAuthenticated ? (
-            <Navigate to="/app/dashboard" replace />
-          ) : (
-            <Register />
-          )
-        }
-      />
+     <Route path="/" element={<Navigate to={isAuthenticated ? home : "/login"} replace />} />
+
+   <Route path="/login" element={isAuthenticated ? <Navigate to={home} replace /> : <Login />} />
+
+    <Route path="/register" element={isAuthenticated ? <Navigate to={home} replace /> : <Register />} />
 
       <Route
         path="/app"
@@ -111,6 +93,8 @@ export default function App() {
             </ProtectedRoute>
           }
         /> */}
+
+        
 
      <Route 
   path="members" 
@@ -185,9 +169,28 @@ export default function App() {
           </ProtectedRoute>
         }
         />
+              <Route path="member-dashboard" element={            <ProtectedRoute roles={["MEMBER"]}>
+
+        <MemberDashboard />
+
+      </ProtectedRoute>
+        
+        } />
+
+        <Route path="myslotshistory" element={
+          <ProtectedRoute roles={["MEMBER"]}>
+            <MemberSlotHistory />
+          </ProtectedRoute>
+        } />
+
+        {/* <Route path="myattendance" element={
+          <ProtectedRoute roles={["MEMBER"]}></ProtectedRoute>
+        }/> */}
       </Route>
 
               <Route path="/set-password" element={<SetPassword />} />
+              
+
 
 
       <Route path="*" element={<NotFound />} />

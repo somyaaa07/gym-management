@@ -5,13 +5,13 @@ import { roleMiddleware } from '../../middleware/role.middleware.js';
 
 const router = express.Router();
 
-router.post('/',authMiddleware,roleMiddleware('ADMIN'),healthProfileController.createHealthProfile);
+router.post('/',authMiddleware,roleMiddleware('ADMIN','MEMBER'),healthProfileController.createHealthProfile);
 
 router.get('/',authMiddleware,healthProfileController.getAllHealthProfiles);
 router.get('/branch/:id',authMiddleware,healthProfileController.getHealthProfilesOnBranch);
 router.get('/:id',authMiddleware,healthProfileController.getHealthProfileById);
 
-router.patch('/:id',authMiddleware,roleMiddleware('ADMIN'),healthProfileController.updateHealthProfile);
+router.patch('/:id',authMiddleware,roleMiddleware('ADMIN','MEMBER'),healthProfileController.updateHealthProfile);
 router.delete('/:id',authMiddleware,roleMiddleware('ADMIN'),healthProfileController.deleteHealthProfile);
 
 export default router;

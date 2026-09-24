@@ -68,48 +68,53 @@ export const createMemberSlot = async (req, res) => {
     // CHECK EXISTING SLOT
     // ---------------------------------------------
 
-    const existingSlot = await MemberSlots.findOne({
-      where: {
-        member_id,
-        tenant_id,
-        branch_id,
-      },
+       // ---------------------------------------------
+    // CURRENT (ACTIVE) SLOT
+    // ---------------------------------------------
+
+    const activeSlot = await MemberSlots.findOne({
+      where: { member_id, tenant_id, is_active: true },
     });
 
-    // ---------------------------------------------
-    // UPDATE EXISTING SLOT
-    // ---------------------------------------------
+    if (activeSlot) {
+      const same =
+        String(activeSlot.slot_start_time).slice(0, 5) === slot_start_time.slice(0, 5) &&
+        String(activeSlot.slot_end_time).slice(0, 5) === slot_end_time.slice(0, 5);
 
-    if (existingSlot) {
-      await existingSlot.update({
-        slot_start_time,
-        slot_end_time,
-      });
+      // time wahi hai to nayi row mat banao
+      if (same) {
+        return res.status(200).json({
+          success: true,
+          message: "Member slot unchanged",
+          data: activeSlot,
+        });
+      }
 
-      return res.status(200).json({
-        success: true,
-        message: "Member slot updated successfully",
-        data: existingSlot,
-      });
+      // purana slot history mein chala jaaye
+      await activeSlot.update({ is_active: false });
     }
 
     // ---------------------------------------------
-    // CREATE SLOT
+    // CREATE NEW SLOT
     // ---------------------------------------------
 
     const memberSlot = await MemberSlots.create({
       member_id,
       tenant_id,
-      branch_id,
       slot_start_time,
       slot_end_time,
+      is_active: true,
     });
 
     return res.status(201).json({
       success: true,
-      message: "Member slot created successfully",
+      message: "Member slot saved successfully",
       data: memberSlot,
     });
+    // ---------------------------------------------
+    // CREATE SLOT
+    // ---------------------------------------------
+
   } catch (err) {
     console.log("Error in createMemberSlot:", err);
 
@@ -153,21 +158,11 @@ export const getMemberSlots = async (req, res) => {
     // GET SLOT
     // ---------------------------------------------
 
-    const memberSlots = await MemberSlots.findAll({
-      where: {
-        member_id,
-        tenant_id,
-        branch_id,
-      },
-
-      include: [
-        {
-          model: Member,
-
-          attributes: ["id", "name", "branch_id"],
-        },
-      ],
-    });
+   const memberSlots = await MemberSlots.findAll({
+  where: { member_id, tenant_id },
+  order: [["is_active", "DESC"], ["created_at", "DESC"]],
+  include: [{ model: Member, attributes: ["id", "name", "branch_id"] }],
+});
 
     if (memberSlots.length === 0) {
       return res.status(404).json({
