@@ -13,6 +13,11 @@ MembershipPlan.init({
         type:DataTypes.UUID,
         allowNull:false
     },
+    branch_id:{
+        type:DataTypes.UUID,
+        allowNull:true
+    },
+
     name:{
         type:DataTypes.STRING,
         allowNull:false
