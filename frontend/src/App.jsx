@@ -191,7 +191,7 @@ const home = user?.role === "MEMBER" ? "/app/member-dashboard" : "/app/member-da
           </ProtectedRoute>
         }/>
          <Route path="health-profile" element={
-          <ProtectedRoute roles={["MEMBER"]}>
+          <ProtectedRoute roles={["MEMBER","ADMIN"]}>
             <MyHealthProfile/>
           </ProtectedRoute>
         }/>

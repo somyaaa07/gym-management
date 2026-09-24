@@ -159,11 +159,11 @@ const MEMBER_NAV = [
     label: "My Attendance",
     icon: ScanFace,
   },
-  {
-    to: "/app/my-progress",
-    label: "My Progress",
-    icon: TrendingUp,
-  },
+  // {
+  //   to: "/app/my-progress",
+  //   label: "My Progress",
+  //   icon: TrendingUp,
+  // },
   {
     to: "/app/my-diet",
     label: "Diet Plan",
