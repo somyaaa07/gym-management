@@ -7,8 +7,8 @@ const router = express.Router();
 
 router.post('/' , authMiddleware,roleMiddleware('ADMIN'),membershipPlanCOntroller.createMembershipPlan);
 
-router.get('/',authMiddleware,roleMiddleware('ADMIN'),membershipPlanCOntroller.getAllMembershipPlans);
-router.get('/:id',authMiddleware,roleMiddleware('ADMIN'),membershipPlanCOntroller.getMembershipPlanById);
+router.get('/',authMiddleware,roleMiddleware('ADMIN','BRANCH_ADMIN','MEMBER'),membershipPlanCOntroller.getAllMembershipPlans);
+router.get('/:id',authMiddleware,roleMiddleware('ADMIN', 'BRANCH_ADMIN','MEMBER'),membershipPlanCOntroller.getMembershipPlanById);
 router.put('/:id',authMiddleware,roleMiddleware('ADMIN'),membershipPlanCOntroller.updateMembershipPlan);
 router.delete('/:id',authMiddleware,roleMiddleware('ADMIN'),membershipPlanCOntroller.deleteMembershipPlan);
 

@@ -2,6 +2,16 @@ import { Tenant } from "../model/index.js";
 
 export const tenantMiddleware = async (req, res, next) => {
   try {
+    console.log("========== TENANT DEBUG ==========");
+    console.log("USER:", req.user);
+    console.log("ROLE:", req.user?.role);
+    console.log("USER TENANT ID:", req.user?.tenant_id);
+    console.log("BODY TENANT ID:", req.body?.tenant_id);
+    console.log("PARAM TENANT ID:", req.params?.tenantId);
+    console.log("==================================");
+
+    // existing code...
+
     // Super admins aren't scoped to a single tenant — resolve from the request instead
     if (req.user.role === "SUPER_ADMIN") {
       const tenantId = req.body.tenant_id || req.params.tenantId;

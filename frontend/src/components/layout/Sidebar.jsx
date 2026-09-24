@@ -87,7 +87,7 @@ const ADMIN_NAV = [
 
 const BRANCH_NAV = [
   {
-    to: "/app/branch-dashboard",
+    to: "/app/dashboard",
     label: "Overview",
     icon: LayoutGrid,
   },
@@ -113,12 +113,12 @@ const BRANCH_NAV = [
   },
 
   {
-    to: "/app/branch-attendance",
+    to: "/app/attendance-history",
     label: "Attendance",
     icon: ScanFace,
   },
   {
-    to: "/app/branch-face-registration",
+    to: "/app/faceidtest",
     label: "Face Registration",
     icon: Fingerprint,
   },
