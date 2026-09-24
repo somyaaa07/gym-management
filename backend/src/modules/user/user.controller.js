@@ -4,6 +4,10 @@ import bcrypt from "bcryptjs";
 
 export const createUser = async (req, res) => {
   try {
+    // ==========================================
+    // VALIDATION
+    // ==========================================
+
     const result = userSchema.safeParse(req.body);
 
     if (!result.success) {
@@ -24,19 +28,22 @@ export const createUser = async (req, res) => {
       role,
     } = result.data;
 
-    // MUST come before any console.log using creatorRole
+    // ==========================================
+    // CREATOR DETAILS
+    // ==========================================
+
     const creatorRole = req.user.role;
 
     let tenant_id = null;
     let finalBranchId = null;
     let finalRole = role;
 
-    // DEBUG — put it HERE, not before creatorRole
     console.log("CREATE USER DEBUG:", {
       creatorRole,
       creatorUserId: req.user.id,
       creatorTenantId: req.user.tenant_id,
       creatorBranchId: req.user.branch_id,
+      requestedTenantId: bodyTenantId,
       requestedBranchId: branch_id,
       finalBranchId,
       role,
@@ -45,15 +52,96 @@ export const createUser = async (req, res) => {
     // ==========================================
     // SUPER ADMIN → CREATE ADMIN
     // ==========================================
+
     if (creatorRole === "SUPER_ADMIN") {
-      // your existing code...
+      // SUPER_ADMIN must provide tenant_id
+      if (!bodyTenantId) {
+        return res.status(400).json({
+          success: false,
+          message: "Tenant is required for ADMIN user",
+        });
+      }
+
+      // SUPER_ADMIN can only create ADMIN
+      if (role !== "ADMIN") {
+        return res.status(403).json({
+          success: false,
+          message: "Super Admin can only create ADMIN users",
+        });
+      }
+
+      // Check tenant
+      const tenant = await Tenant.findByPk(bodyTenantId);
+
+      if (!tenant) {
+        return res.status(404).json({
+          success: false,
+          message: "Tenant not found",
+        });
+      }
+
+      tenant_id = tenant.id;
+
+      // ADMIN is tenant-level user
+      finalBranchId = null;
+      finalRole = "ADMIN";
     }
 
     // ==========================================
     // ADMIN → CREATE BRANCH USER
     // ==========================================
     else if (creatorRole === "ADMIN") {
-      // your existing code...
+      // ADMIN must have tenant
+      if (!req.user.tenant_id) {
+        return res.status(403).json({
+          success: false,
+          message: "Admin is not associated with any tenant",
+        });
+      }
+
+      tenant_id = req.user.tenant_id;
+
+      // ADMIN cannot create SUPER_ADMIN
+      if (role === "SUPER_ADMIN") {
+        return res.status(403).json({
+          success: false,
+          message: "Admin cannot create SUPER_ADMIN",
+        });
+      }
+
+      // ADMIN cannot create another ADMIN
+      if (role === "ADMIN") {
+        return res.status(403).json({
+          success: false,
+          message: "Admin cannot create another ADMIN",
+        });
+      }
+
+      // Branch is required for branch-level users
+      if (!branch_id) {
+        return res.status(400).json({
+          success: false,
+          message: "Branch is required",
+        });
+      }
+
+      // Verify branch belongs to ADMIN's tenant
+      const branch = await Branch.findOne({
+        where: {
+          id: branch_id,
+          tenant_id: tenant_id,
+          status: 1,
+        },
+      });
+
+      if (!branch) {
+        return res.status(404).json({
+          success: false,
+          message: "Branch not found or does not belong to your tenant",
+        });
+      }
+
+      finalBranchId = branch.id;
     }
 
     // ==========================================
@@ -62,7 +150,15 @@ export const createUser = async (req, res) => {
     else if (creatorRole === "BRANCH_ADMIN") {
       tenant_id = req.user.tenant_id;
 
-      // Branch Admin's own branch
+      // Branch Admin must belong to tenant
+      if (!tenant_id) {
+        return res.status(403).json({
+          success: false,
+          message: "Branch Admin is not associated with any tenant",
+        });
+      }
+
+      // Branch Admin must belong to branch
       finalBranchId = req.user.branch_id;
 
       if (!finalBranchId) {
@@ -72,6 +168,7 @@ export const createUser = async (req, res) => {
         });
       }
 
+      // Branch Admin cannot create privileged roles
       if (
         role === "ADMIN" ||
         role === "SUPER_ADMIN" ||
@@ -83,6 +180,7 @@ export const createUser = async (req, res) => {
         });
       }
 
+      // Verify Branch Admin's branch
       const branch = await Branch.findOne({
         where: {
           id: finalBranchId,
@@ -100,10 +198,60 @@ export const createUser = async (req, res) => {
     }
 
     // ==========================================
-    // CREATE USER
+    // OTHER ROLES
+    // ==========================================
+    else {
+      return res.status(403).json({
+        success: false,
+        message: "You are not allowed to create users",
+      });
+    }
+
+    // ==========================================
+    // CHECK DUPLICATE EMAIL
+    // ==========================================
+
+    const existingUser = await User.findOne({
+      where: {
+        email,
+      },
+    });
+
+    if (existingUser) {
+      return res.status(409).json({
+        success: false,
+        message: "User with this email already exists",
+      });
+    }
+
+    // ==========================================
+    // CHECK DUPLICATE PHONE
+    // ==========================================
+
+    if (phone) {
+      const existingPhone = await User.findOne({
+        where: {
+          phone,
+        },
+      });
+
+      if (existingPhone) {
+        return res.status(409).json({
+          success: false,
+          message: "User with this phone already exists",
+        });
+      }
+    }
+
+    // ==========================================
+    // HASH PASSWORD
     // ==========================================
 
     const passwordHashed = await bcrypt.hash(password, 10);
+
+    // ==========================================
+    // CREATE USER
+    // ==========================================
 
     const user = await User.create({
       name,
@@ -114,6 +262,10 @@ export const createUser = async (req, res) => {
       branch_id: finalBranchId,
       role: finalRole,
     });
+
+    // ==========================================
+    // RESPONSE
+    // ==========================================
 
     return res.status(201).json({
       success: true,
@@ -130,7 +282,7 @@ export const createUser = async (req, res) => {
       },
     });
   } catch (err) {
-    console.log("Failed to create user", err);
+    console.log("Failed to create user:", err);
 
     return res.status(500).json({
       success: false,
