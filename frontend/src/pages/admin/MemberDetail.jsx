@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
-import { ArrowLeft, Plus, Snowflake, Ban, Phone, Mail, MapPin, CalendarDays, Target } from 'lucide-react';
+import { ArrowLeft, Plus, Snowflake, Ban, Phone, Mail, MapPin, CalendarDays, Target, Hash } from 'lucide-react';
 import usePageMeta from '../../lib/usePageMeta.js';
 import { memberApi, membershipPlanApi, memberMembershipApi, goalApi, extractErrorMessage } from '../../lib/api.js';
 import Button from '../../components/ui/Button.jsx';
@@ -210,6 +210,11 @@ export default function MemberDetail() {
           <InfoRow icon={Mail} label="Email" value={member.email} />
           <InfoRow icon={CalendarDays} label="Joined" value={String(member.joining_date).slice(0, 10)} />
           <InfoRow icon={MapPin} label="Address" value={member.address || '—'} />
+          <InfoRow
+            icon={Hash}
+            label="Member ID"
+            value={<span className="font-mono text-xs break-all">{member.id}</span>}
+          />
         </div>
       </div>
 
