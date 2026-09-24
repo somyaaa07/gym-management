@@ -55,6 +55,21 @@ export const attendanceApi = {
   history: (params) => unwrap(client.get('/attendance/attendance-history', { params })),
 };
 
+// ---------- Attendance Rules ----------
+export const attendanceRuleApi = {
+  get: () => unwrap(client.get('/attendance-rule')),
+  update: (payload) => unwrap(client.put('/attendance-rule', payload)),
+};
+
+export const memberSlotApi = {
+  create: (payload) => unwrap(client.post('/member-slot', payload)),
+  getByMember: (memberId) =>
+    unwrap(client.get(`/member-slot/${memberId}`)),
+  update: (memberId, payload) =>
+    unwrap(client.put(`/member-slot/${memberId}`, payload)),
+};
+
+
 // ---------- Users (staff) ----------
 export const userApi = {
   create: (payload) => unwrap(client.post('/users', payload)),
@@ -113,6 +128,137 @@ export const goalApi = {
   getById: (id) => unwrap(client.get(`/goals/${id}`)),
   update: (id, payload) => unwrap(client.patch(`/goals/${id}`, payload)),
   remove: (id) => unwrap(client.delete(`/goals/${id}`)),
+};
+
+export const healthProfileApi = {
+  create: (payload) =>
+    unwrap(client.post('/health-profile', payload)),
+
+  list: () =>
+    unwrap(client.get('/health-profile')),
+
+  getByBranch: (branchId) =>
+    unwrap(client.get(`/health-profile/branch/${branchId}`)),
+
+  getById: (id) =>
+    unwrap(client.get(`/health-profile/${id}`)),
+
+  update: (id, payload) =>
+    unwrap(client.patch(`/health-profile/${id}`, payload)),
+
+  remove: (id) =>
+    unwrap(client.delete(`/health-profile/${id}`)),
+};
+
+// ---------- Measurements ----------
+export const measurementApi = {
+  create: (payload) =>
+    unwrap(client.post('/measurements', payload)),
+
+  list: () =>
+    unwrap(client.get('/measurements')),
+
+  getByBranch: (branchId) =>
+    unwrap(client.get(`/measurements/branch/${branchId}`)),
+
+  getById: (id) =>
+    unwrap(client.get(`/measurements/${id}`)),
+
+  update: (id, payload) =>
+    unwrap(client.patch(`/measurements/${id}`, payload)),
+
+  remove: (id) =>
+    unwrap(client.delete(`/measurements/${id}`)),
+};
+
+// ---------- Diet Plans ----------
+export const dietPlanApi = {
+  create: (payload) =>
+    unwrap(client.post('/diet-plans', payload)),
+
+  list: () =>
+    unwrap(client.get('/diet-plans')),
+
+  getById: (id) =>
+    unwrap(client.get(`/diet-plans/${id}`)),
+
+  update: (id, payload) =>
+    unwrap(client.put(`/diet-plans/${id}`, payload)),
+
+  remove: (id) =>
+    unwrap(client.delete(`/diet-plans/${id}`)),
+};
+
+// ---------- Diet Plan Meals ----------
+export const dietPlanMealApi = {
+  create: (payload) =>
+    unwrap(client.post('/diet-plan-meals', payload)),
+
+  list: () =>
+    unwrap(client.get('/diet-plan-meals')),
+
+  getById: (id) =>
+    unwrap(client.get(`/diet-plan-meals/${id}`)),
+
+  update: (id, payload) =>
+    unwrap(client.put(`/diet-plan-meals/${id}`, payload)),
+
+  remove: (id) =>
+    unwrap(client.delete(`/diet-plan-meals/${id}`)),
+};
+
+// ---------- Exercises ----------
+export const exerciseApi = {
+  create: (payload) =>
+    unwrap(client.post('/exercises', payload)),
+
+  list: () =>
+    unwrap(client.get('/exercises')),
+
+  getById: (id) =>
+    unwrap(client.get(`/exercises/${id}`)),
+
+  update: (id, payload) =>
+    unwrap(client.patch(`/exercises/${id}`, payload)),
+
+  remove: (id) =>
+    unwrap(client.delete(`/exercises/${id}`)),
+};
+
+// ---------- Workout Plans ----------
+export const workoutPlanApi = {
+  create: (payload) =>
+    unwrap(client.post('/workout-plans', payload)),
+
+  list: () =>
+    unwrap(client.get('/workout-plans')),
+
+  getById: (id) =>
+    unwrap(client.get(`/workout-plans/${id}`)),
+
+  update: (id, payload) =>
+    unwrap(client.patch(`/workout-plans/${id}`, payload)),
+
+  remove: (id) =>
+    unwrap(client.delete(`/workout-plans/${id}`)),
+};
+
+// ---------- Workout Plan Exercises ----------
+export const workoutPlanExerciseApi = {
+  create: (payload) =>
+    unwrap(client.post('/workout-plan-exercises', payload)),
+
+  list: () =>
+    unwrap(client.get('/workout-plan-exercises')),
+
+  getById: (id) =>
+    unwrap(client.get(`/workout-plan-exercises/${id}`)),
+
+  update: (id, payload) =>
+    unwrap(client.patch(`/workout-plan-exercises/${id}`, payload)),
+
+  remove: (id) =>
+    unwrap(client.delete(`/workout-plan-exercises/${id}`)),
 };
 
 // ---------- AI (local Ollama: Llama / Gemma) ----------

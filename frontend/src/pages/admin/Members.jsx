@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Plus, UserRound, Pencil, Trash2 } from 'lucide-react';
 import usePageMeta from '../../lib/usePageMeta.js';
-import { memberApi, branchApi, extractErrorMessage } from '../../lib/api.js';
+import { memberApi, branchApi, memberSlotApi, extractErrorMessage } from '../../lib/api.js';
 import Button from '../../components/ui/Button.jsx';
 import Modal from '../../components/ui/Modal.jsx';
 import ConfirmDialog from '../../components/ui/ConfirmDialog.jsx';
@@ -22,10 +22,12 @@ const EMPTY_FORM = {
   emergency_contact_phone: '',
   joining_date: new Date().toISOString().slice(0, 10),
   branch_id: '',
+  slot_start_time: '',
+  slot_end_time: ''
 };
 
-export default function Members({branchId}) {
- usePageMeta(
+export default function Members({ branchId }) {
+  usePageMeta(
     'Members',
     branchId
       ? 'Members in this branch'
@@ -44,37 +46,39 @@ export default function Members({branchId}) {
   const [deleting, setDeleting] = useState(false);
 
 
-  
+
   const load = () => {
     const request = branchId ? memberApi.getByBranch(branchId)
-: memberApi.list();
+      : memberApi.list();
 
 
     request
-    .then((res) => setMembers(res.data))
-    .catch(() => setMembers([]));
+      .then((res) => setMembers(res.data))
+      .catch(() => setMembers([]));
   };
 
   useEffect(() => {
     load();
-    if (!branchId) {
-      branchApi
-        .list()
-        .then((res) => setBranches(res.data))
-        .catch(() => setBranches([]));
-    }
-
+    branchApi.list().then((res) => setBranches(res.data)).catch(() => setBranches([]));
   }, [branchId]);
 
   const branchName = (id) => branches.find((b) => b.id === id)?.name || '—';
 
   const openCreate = () => {
-    setForm({ ...EMPTY_FORM, branch_id: branches[0]?.id || '' });
+    setForm({ ...EMPTY_FORM, branch_id: branchId || branches[0]?.id || '' });
     setError('');
     setModal({ mode: 'create' });
   };
 
-  const openEdit = (m) => {
+  const openEdit = async (m) => {
+    let slot = null;
+    try {
+      const res = await memberSlotApi.getByMember(m.id);
+      slot = res.data?.[0] || null;
+    }
+    catch (err) {
+      // return res.status(404).json({ message: 'Error getting slot' });
+    }
     setForm({
       name: m.name || '',
       phone: m.phone || '',
@@ -86,6 +90,8 @@ export default function Members({branchId}) {
       emergency_contact_phone: m.emergency_contact_phone || '',
       joining_date: m.joining_date ? String(m.joining_date).slice(0, 10) : EMPTY_FORM.joining_date,
       branch_id: m.branch_id || '',
+      slot_start_time: slot?.slot_start_time?.slice(0, 5) || '',
+      slot_end_time: slot?.slot_end_time?.slice(0, 5) || ''
     });
     setError('');
     setModal({ mode: 'edit', data: m });
@@ -94,17 +100,55 @@ export default function Members({branchId}) {
   const onSubmit = async (e) => {
     e.preventDefault();
     setError('');
-    if (!branches.length) {
+    if (!branchId && !branches.length) {
       setError('Create a branch first — members must belong to one.');
+      return;
+    }
+    if (form.slot_start_time && form.slot_end_time && form.slot_start_time >= form.slot_end_time) {
+      setError('Slot end time must be after start time.');
+      return;
+    }
+    if (!!form.slot_start_time !== !!form.slot_end_time) {
+      setError('Fill both slot start and end time.');
       return;
     }
     setSaving(true);
     try {
+
+      const { slot_start_time, slot_end_time, ...memberPayload } = form;
+      const slotPayload = { slot_start_time, slot_end_time }
+
+
       if (modal.mode === 'create') {
-        await memberApi.create(form);
-        toast.success('Member added.');
+        const res = await memberApi.create(memberPayload);
+        const created = res.data?.member || res.data?.data || res.data;
+        const memberId = created?.id || created?.member_id;
+
+        if (!memberId) {
+          console.log('Unexpected create response:', res);
+          toast.error('Member added, but could not read the new member id.');
+        } else {
+          try {
+            await memberSlotApi.create({ member_id: memberId, ...slotPayload });
+            toast.success('Member added and slot created.');
+          } catch (slotErr) {
+            toast.error(extractErrorMessage(slotErr, 'Member added, but slot could not be assigned'));
+          }
+        }
+        try {
+
+          await memberSlotApi.create({ member_id: newMember.id, ...slotPayload });
+          toast.success('Member added and slot created.');
+        }
+        catch (slotErr) {
+          toast.error(extractErrorMessage(slotErr, 'Member added, but slot could not assigned'));
+        }
       } else {
-        await memberApi.update(modal.data.id, form);
+        await memberApi.update(modal.data.id, memberPayload);
+
+        if (slot_start_time && slot_end_time) {
+          await memberSlotApi.create({ member_id: modal.data.id, ...slotPayload });
+        }
         toast.success('Member updated.');
       }
       setModal(null);
@@ -229,6 +273,17 @@ export default function Members({branchId}) {
           <Field label="Joining date" required>
             <Input type="date" required value={form.joining_date} onChange={(e) => setForm({ ...form, joining_date: e.target.value })} />
           </Field>
+
+          <div className="grid grid-cols-2 gap-3">
+            <Field label="Slot start time" required={modal?.mode === 'create'}>
+              <Input type="time" required={modal?.mode === 'create'} value={form.slot_start_time}
+                onChange={(e) => setForm({ ...form, slot_start_time: e.target.value })} />
+            </Field>
+            <Field label="Slot end time" required={modal?.mode === 'create'}>
+              <Input type="time" required={modal?.mode === 'create'} value={form.slot_end_time}
+                onChange={(e) => setForm({ ...form, slot_end_time: e.target.value })} />
+            </Field>
+          </div>
 
           {error && <p className="text-xs text-ember-500 bg-ember-500/10 border border-ember-500/20 rounded-xl px-3 py-2">{error}</p>}
 

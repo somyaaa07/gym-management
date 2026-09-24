@@ -7,9 +7,9 @@ const router = express.Router();
 
 router.post('/', authMiddleware, roleMiddleware('ADMIN','TRAINER'), workoutPlanExerciseController.createWorkoutPlanExercise);
 
-router.get('/', authMiddleware, roleMiddleware('ADMIN','TRAINER'), workoutPlanExerciseController.getAllWorkoutPlanExercise);
+router.get('/', authMiddleware, roleMiddleware('ADMIN','TRAINER','MEMBER'), workoutPlanExerciseController.getAllWorkoutPlanExercise);
 
-router.get('/:id', authMiddleware, roleMiddleware('ADMIN','TRAINER'), workoutPlanExerciseController.getWorkOutPlanExerciseById);
+router.get('/:id', authMiddleware, roleMiddleware('ADMIN','TRAINER','MEMBER'), workoutPlanExerciseController.getWorkOutPlanExerciseById);
 
 router.patch('/:id', authMiddleware, roleMiddleware('ADMIN','TRAINER'), workoutPlanExerciseController.updateWorkoutPlanExercise);
 

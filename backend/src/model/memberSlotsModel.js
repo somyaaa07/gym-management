@@ -17,6 +17,10 @@ MemberSlots.init({
         type:DataTypes.UUID,
         allowNull: false,
     },
+    branch_id: {
+  type: DataTypes.UUID,
+  allowNull: true,
+},
     slot_start_time:{
         type:DataTypes.TIME,
         allowNull:false
