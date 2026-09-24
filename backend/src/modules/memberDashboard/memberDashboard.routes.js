@@ -11,6 +11,8 @@ const router =  express.Router();
 router.get(
     '/', authMiddleware, tenantMiddleware,roleMiddleware ("MEMBER"), MemberDashboardController.getMemberDashboard
 )
+router.get("/my-attendance",authMiddleware,tenantMiddleware,roleMiddleware("MEMBER"), MemberDashboardController.getMyAttendance);
+
 
 export default router;
  

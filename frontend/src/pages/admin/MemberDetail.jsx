@@ -2,13 +2,14 @@ import { useEffect, useState } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { ArrowLeft, Plus, Snowflake, Ban, Phone, Mail, MapPin, CalendarDays, Target, Hash } from 'lucide-react';
 import usePageMeta from '../../lib/usePageMeta.js';
-import { memberApi, membershipPlanApi, memberMembershipApi, goalApi, extractErrorMessage } from '../../lib/api.js';
+import { memberApi, membershipPlanApi, memberMembershipApi, goalApi, extractErrorMessage,healthProfileApi } from '../../lib/api.js';
 import Button from '../../components/ui/Button.jsx';
 import Modal from '../../components/ui/Modal.jsx';
 import { Field, Input, Select, Textarea } from '../../components/ui/Field.jsx';
 import { PageSpinner, Badge, EmptyState } from '../../components/ui/Misc.jsx';
 import { useToast } from '../../components/ui/Toast.jsx';
 import GoalAiSuggestions from '../../components/ai/GoalSuggestion.jsx';
+import HealthProfileSection from '../../components/HealthProfile.jsx';
 
 const EMPTY_ENROLL = { membership_plan_id: '', start_date: new Date().toISOString().slice(0, 10), discount: 0, payment_status: 'PAID', auto_renew: false };
 const EMPTY_FREEZE = { freeze_start_date: '', freeze_end_date: '' };
@@ -50,6 +51,7 @@ export default function MemberDetail() {
   const [prefs, setPrefs] = useState(EMPTY_PREFS);
   const [goalSaving, setGoalSaving] = useState(false);
   const [goalError, setGoalError] = useState('');
+  const [hp, setHp] = useState(null);
 
   const load = () => {
     memberApi
@@ -74,6 +76,12 @@ export default function MemberDetail() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
 
+  const loadHp = () =>
+  healthProfileApi.list()
+    .then((res) => setHp((res.data || []).find((p) => p.member_id === id) || null))
+    .catch(() => setHp(null)); // 404 aata hai jab koi profile hi nahi
+
+useEffect(() => { loadHp(); }, [id]);
   const openEnroll = () => {
     setEnrollForm({ ...EMPTY_ENROLL, membership_plan_id: plans[0]?.id || '' });
     setEnrollError('');
@@ -276,7 +284,7 @@ export default function MemberDetail() {
           </div>
         )}
       </div>
-
+      <HealthProfileSection memberId={id} memberName={member.name} profile={hp} onChanged={loadHp} />
       <div>
         <div className="flex items-center justify-between flex-wrap gap-3 mb-4">
           <h3 className="font-display text-2xl text-bone-100 leading-none">Goals</h3>

@@ -3,12 +3,11 @@ import { Tenant } from "../model/index.js";
 export const tenantMiddleware = async (req, res, next) => {
   try {
 
-
-
     // Super admins aren't scoped to a single tenant — resolve from the request instead
     if (req.user.role === "SUPER_ADMIN") {
       const tenantId = req.body.tenant_id || req.params.tenantId;
 
+      
       if (!tenantId) {
         // allow through with no tenant context for routes that don't need one (e.g. GET /users list)
         return next();

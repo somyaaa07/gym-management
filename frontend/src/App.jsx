@@ -23,6 +23,8 @@ import SetPassword from "./pages/member/SetPassword.jsx";
 import AttendanceAdmin from "./pages/admin/AdminAttendance.jsx";
 import MemberDashboard from "./pages/member/memberDashboard.jsx";
 import MemberSlotHistory from "./pages/member/memberslotHistory.jsx";
+import MyAttendance from "./pages/member/memberAttendanceHistory.jsx";
+import MyHealthProfile from "./pages/member/myhealthprofile.jsx";
 export default function App() {
 const { isAuthenticated, user } = useAuth();
 const home = user?.role === "MEMBER" ? "/app/member-dashboard" : "/app/member-dashboard";
@@ -177,11 +179,23 @@ const home = user?.role === "MEMBER" ? "/app/member-dashboard" : "/app/member-da
         
         } />
 
-        <Route path="myslotshistory" element={
+        <Route path="myslot-history" element={
           <ProtectedRoute roles={["MEMBER"]}>
             <MemberSlotHistory />
           </ProtectedRoute>
         } />
+
+        <Route path="my-attendance" element={
+          <ProtectedRoute roles={["MEMBER"]}>
+           <MyAttendance/>
+          </ProtectedRoute>
+        }/>
+         <Route path="health-profile" element={
+          <ProtectedRoute roles={["MEMBER"]}>
+            <MyHealthProfile/>
+          </ProtectedRoute>
+        }/>
+
 
         {/* <Route path="myattendance" element={
           <ProtectedRoute roles={["MEMBER"]}></ProtectedRoute>
