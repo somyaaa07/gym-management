@@ -196,11 +196,17 @@ export default function Users() {
               header: "Role",
               render: (r) => <Badge>{r.role}</Badge>,
             },
-            {
-              key: "branch",
-              header: "Branch",
-              render: (r) => branchName(r.branch_id),
-            },
+            // Show Branch only for ADMIN and SUPER_ADMIN
+            ...(user?.role !== "BRANCH_ADMIN"
+              ? [
+                  {
+                    key: "branch",
+                    header: "Branch",
+                    render: (r) => branchName(r.branch_id),
+                  },
+                ]
+              : []),
+
             {
               key: "status",
               header: "Status",
