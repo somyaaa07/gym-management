@@ -22,18 +22,38 @@ import Attendance from "./pages/admin/Attendance.jsx";
 import SetPassword from "./pages/member/SetPassword.jsx";
 import AttendanceAdmin from "./pages/admin/AdminAttendance.jsx";
 import MemberDashboard from "./pages/member/memberDashboard.jsx";
+import BranchDashboard from "./pages/branch/BranchDashboard.jsx";
 import MemberSlotHistory from "./pages/member/memberslotHistory.jsx";
 export default function App() {
-const { isAuthenticated, user } = useAuth();
-const home = user?.role === "MEMBER" ? "/app/member-dashboard" : "/app/member-dashboard";
+  const { isAuthenticated, user } = useAuth();
+  // const home =
+  //   user?.role === "MEMBER" ? "/app/member-dashboard" : "/app/member-dashboard";
+
+  const home =
+    user?.role === "MEMBER"
+      ? "/app/member-dashboard"
+      : user?.role === "BRANCH_ADMIN"
+        ? "/app/branch-dashboard"
+        : "/app/dashboard";
 
   return (
     <Routes>
-     <Route path="/" element={<Navigate to={isAuthenticated ? home : "/login"} replace />} />
+      <Route
+        path="/"
+        element={<Navigate to={isAuthenticated ? home : "/login"} replace />}
+      />
 
-   <Route path="/login" element={isAuthenticated ? <Navigate to={home} replace /> : <Login />} />
+      <Route
+        path="/login"
+        element={isAuthenticated ? <Navigate to={home} replace /> : <Login />}
+      />
 
-    <Route path="/register" element={isAuthenticated ? <Navigate to={home} replace /> : <Register />} />
+      <Route
+        path="/register"
+        element={
+          isAuthenticated ? <Navigate to={home} replace /> : <Register />
+        }
+      />
 
       <Route
         path="/app"
@@ -43,7 +63,15 @@ const home = user?.role === "MEMBER" ? "/app/member-dashboard" : "/app/member-da
           </ProtectedRoute>
         }
       >
-        <Route path="dashboard" element={<Dashboard />} />
+        {/* <Route path="dashboard" element={<Dashboard />} /> */}
+
+        <Route
+          path="dashboard"
+          element={
+            user?.role === "BRANCH_ADMIN" ? <BranchDashboard /> : <Dashboard />
+          }
+        />
+        
         <Route
           path="tenants"
           element={
@@ -80,7 +108,7 @@ const home = user?.role === "MEMBER" ? "/app/member-dashboard" : "/app/member-da
         <Route
           path="users"
           element={
-            <ProtectedRoute roles={["ADMIN", "SUPER_ADMIN","BRANCH_ADMIN"]}>
+            <ProtectedRoute roles={["ADMIN", "SUPER_ADMIN", "BRANCH_ADMIN"]}>
               <Users />
             </ProtectedRoute>
           }
@@ -94,28 +122,23 @@ const home = user?.role === "MEMBER" ? "/app/member-dashboard" : "/app/member-da
           }
         /> */}
 
-        
+        <Route
+          path="members"
+          element={
+            <ProtectedRoute>
+              <Members
+                branchId={
+                  user?.role === "BRANCH_ADMIN" ? user?.branch_id : undefined
+                }
+              />
+            </ProtectedRoute>
+          }
+        />
 
-     <Route 
-  path="members" 
-  element={ 
-    <ProtectedRoute>
-      <Members 
-        branchId={
-          user?.role === "BRANCH_ADMIN"
-            ? user?.branch_id
-            : undefined
-        } 
-      />
-    </ProtectedRoute>
-  } 
-/>
-          
-      
         <Route
           path="members/:id"
           element={
-            <ProtectedRoute roles={["ADMIN","BRANCH_ADMIN"]}>
+            <ProtectedRoute roles={["ADMIN", "BRANCH_ADMIN"]}>
               <MemberDetail />
             </ProtectedRoute>
           }
@@ -123,7 +146,7 @@ const home = user?.role === "MEMBER" ? "/app/member-dashboard" : "/app/member-da
         <Route
           path="membership-plans"
           element={
-            <ProtectedRoute roles={["ADMIN","BRANCH_ADMIN"]}>
+            <ProtectedRoute roles={["ADMIN", "BRANCH_ADMIN"]}>
               <MembershipPlans />
             </ProtectedRoute>
           }
@@ -131,7 +154,7 @@ const home = user?.role === "MEMBER" ? "/app/member-dashboard" : "/app/member-da
         <Route
           path="memberships"
           element={
-            <ProtectedRoute roles={["ADMIN","BRANCH_ADMIN"]}>
+            <ProtectedRoute roles={["ADMIN", "BRANCH_ADMIN"]}>
               <MemberMemberships />
             </ProtectedRoute>
           }
@@ -161,37 +184,46 @@ const home = user?.role === "MEMBER" ? "/app/member-dashboard" : "/app/member-da
           }
         />
 
-        <Route 
-        path="attendance-history"
-        element={
-          <ProtectedRoute roles={["ADMIN","BRANCH_ADMIN"]}>
-            <AttendanceAdmin/>
-          </ProtectedRoute>
-        }
+        <Route
+          path="attendance-history"
+          element={
+            <ProtectedRoute roles={["ADMIN", "BRANCH_ADMIN"]}>
+              <AttendanceAdmin />
+            </ProtectedRoute>
+          }
         />
-              <Route path="member-dashboard" element={            <ProtectedRoute roles={["MEMBER"]}>
+        <Route
+          path="member-dashboard"
+          element={
+            <ProtectedRoute roles={["MEMBER"]}>
+              <MemberDashboard />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="branch-dashboard"
+          element={
+            <ProtectedRoute roles={["BRANCH_ADMIN"]}>
+              <BranchDashboard />
+            </ProtectedRoute>
+          }
+        />
 
-        <MemberDashboard />
-
-      </ProtectedRoute>
-        
-        } />
-
-        <Route path="myslotshistory" element={
-          <ProtectedRoute roles={["MEMBER"]}>
-            <MemberSlotHistory />
-          </ProtectedRoute>
-        } />
+        <Route
+          path="myslotshistory"
+          element={
+            <ProtectedRoute roles={["MEMBER"]}>
+              <MemberSlotHistory />
+            </ProtectedRoute>
+          }
+        />
 
         {/* <Route path="myattendance" element={
           <ProtectedRoute roles={["MEMBER"]}></ProtectedRoute>
         }/> */}
       </Route>
 
-              <Route path="/set-password" element={<SetPassword />} />
-              
-
-
+      <Route path="/set-password" element={<SetPassword />} />
 
       <Route path="*" element={<NotFound />} />
     </Routes>

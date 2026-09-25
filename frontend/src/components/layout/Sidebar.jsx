@@ -87,7 +87,7 @@ const ADMIN_NAV = [
 
 const BRANCH_NAV = [
   {
-    to: "/app/dashboard",
+    to: "/app/branch-dashboard",
     label: "Overview",
     icon: LayoutGrid,
   },
