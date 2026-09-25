@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
-import { CalendarDays, Clock, Flame, MapPin, Scale, Target, Utensils, Dumbbell } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { CalendarDays, Clock, Flame, MapPin, Target, Utensils, ArrowRight } from 'lucide-react';
 import usePageMeta from '../../lib/usePageMeta.js';
 import { memberDashboardApi } from '../../lib/api.js';
 import { PageSpinner, EmptyState, Badge } from '../../components/ui/Misc.jsx';
@@ -21,12 +22,15 @@ const clock = (d) =>
 const daysLeft = (end) =>
   end ? Math.ceil((new Date(end).setHours(23, 59, 59, 999) - Date.now()) / 86400000) : null;
 
-function Card({ title, icon: Icon, children }) {
+function Card({ title, icon: Icon, action, children }) {
   return (
     <section className="rounded-2xl border border-ink-700 bg-ink-800 shadow-soft p-5">
-      <h3 className="flex items-center gap-2 font-display text-xl text-bone-100 leading-none mb-4">
-        {Icon && <Icon size={16} className="text-ink-400" />} {title}
-      </h3>
+      <div className="flex items-center justify-between mb-4">
+        <h3 className="flex items-center gap-2 font-display text-xl text-bone-100 leading-none">
+          {Icon && <Icon size={16} className="text-ink-400" />} {title}
+        </h3>
+        {action}
+      </div>
       {children}
     </section>
   );
@@ -34,7 +38,7 @@ function Card({ title, icon: Icon, children }) {
 
 function Stat({ label, value, hint }) {
   return (
-    <div className="rounded-2xl border border-ink-700 bg-ink-800 shadow-soft p-5">
+    <div className="rounded-2xl border border-ink-700 bg-ink-800 shadow-soft p-5 h-full">
       <p className="text-xs text-ink-400">{label}</p>
       <p className="font-display text-4xl text-bone-100 leading-none mt-2 tabular">{value}</p>
       {hint && <p className="text-xs text-ink-400 mt-2">{hint}</p>}
@@ -101,14 +105,20 @@ export default function MemberDashboard() {
         <Stat
           label="Today"
           value={checkedIn ? 'In' : 'Not yet'}
-          hint={checkedIn ? `Checked in at ${clock(attendance.today.check_in_time)}` : 'No check-in today'}
+          hint={
+            checkedIn
+              ? `Checked in at ${clock(attendance.today.check_in_time)}${attendance.today.check_in_status === 'LATE' ? ' · Late' : ''}`
+              : 'No check-in today'
+          }
         />
         <Stat label="Visits this month" value={attendance?.this_month ?? 0} hint={`${attendance?.total ?? 0} in total`} />
-        <Stat
-          label="Your slot"
-          value={slot ? hhmm(slot.slot_start_time) : '—'}
-          hint={slot ? `until ${hhmm(slot.slot_end_time)}` : 'No slot assigned'}
-        />
+        <Link to="/app/myslot-history" className="block">
+          <Stat
+            label="Your slot"
+            value={slot ? hhmm(slot.slot_start_time) : '—'}
+            hint={slot ? `until ${hhmm(slot.slot_end_time)}` : 'No slot assigned'}
+          />
+        </Link>
         <Stat
           label="Weight"
           value={progress?.latest_measurement ? `${Number(progress.latest_measurement.weight)} kg` : '—'}
@@ -139,12 +149,23 @@ export default function MemberDashboard() {
           )}
         </Card>
 
-        <Card title="Recent visits" icon={CalendarDays}>
+        <Card
+          title="Recent visits"
+          icon={CalendarDays}
+          action={
+            <Link to="/app/my-attendance" className="flex items-center gap-1 text-xs text-ink-400 hover:text-bone-100">
+              View all <ArrowRight size={12} />
+            </Link>
+          }
+        >
           {attendance?.recent?.length ? (
             <ul className="divide-y divide-ink-700 text-sm">
               {attendance.recent.map((a) => (
                 <li key={a.id} className="flex items-center justify-between py-2">
-                  <span className="text-bone-100 tabular">{day(a.check_in_time)}</span>
+                  <div className="flex items-center gap-2">
+                    <span className="text-bone-100 tabular">{day(a.check_in_time)}</span>
+                    {a.check_in_status && <Badge>{String(a.check_in_status).replace('_', ' ')}</Badge>}
+                  </div>
                   <span className="text-xs text-ink-400 tabular flex items-center gap-1">
                     <Clock size={12} /> {clock(a.check_in_time)}
                     {a.check_out_time ? ` to ${clock(a.check_out_time)}` : ''}

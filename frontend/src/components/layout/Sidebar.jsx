@@ -81,6 +81,13 @@ const ADMIN_NAV = [
     label: "Face Registration",
     icon: Fingerprint,
   },
+    {
+    to: "/app/attendance",
+    label: "CheckIn/CheckOut",
+    icon: Fingerprint,
+  },
+  
+
 ];
 
 //BRANCH SIDEBAR
@@ -143,7 +150,7 @@ const MEMBER_NAV = [
     icon: ClipboardList,
   },
   {
-    to: "/app/myslotshistory",
+    to: "/app/myslot-history",
     label: "My Slot",
     icon: CalendarClock,
   },
@@ -152,11 +159,11 @@ const MEMBER_NAV = [
     label: "My Attendance",
     icon: ScanFace,
   },
-  {
-    to: "/app/my-progress",
-    label: "My Progress",
-    icon: TrendingUp,
-  },
+  // {
+  //   to: "/app/my-progress",
+  //   label: "My Progress",
+  //   icon: TrendingUp,
+  // },
   {
     to: "/app/my-diet",
     label: "Diet Plan",
@@ -168,7 +175,7 @@ const MEMBER_NAV = [
     icon: Dumbbell,
   },
   {
-    to: "/app/my-health",
+    to: "/app/health-profile",
     label: "Health Profile",
     icon: HeartPulse,
   },

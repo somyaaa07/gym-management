@@ -9,5 +9,4 @@ router.post('/checkin',authMiddleware,roleMiddleware('ADMIN','MANAGER','RECEPTIO
 router.post('/checkout',authMiddleware,roleMiddleware('ADMIN','MANAGER','RECEPTIONIST'),checkInOutController.checkOut);
 
 router.get('/attendance-history',authMiddleware,roleMiddleware('ADMIN','MANAGER','RECEPTIONIST'),checkInOutController.getAttendanceHistory);
-
 export default router;

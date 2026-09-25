@@ -1,14 +1,16 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
-import { ArrowLeft, Plus, Snowflake, Ban, Phone, Mail, MapPin, CalendarDays, Target, Hash } from 'lucide-react';
+import { ArrowLeft, Plus, Snowflake, Ban, Phone, Mail, MapPin, CalendarDays, Target, Hash, Ruler } from 'lucide-react';
 import usePageMeta from '../../lib/usePageMeta.js';
-import { memberApi, membershipPlanApi, memberMembershipApi, goalApi, extractErrorMessage } from '../../lib/api.js';
+import { memberApi, membershipPlanApi, memberMembershipApi, goalApi, extractErrorMessage, healthProfileApi, measurementApi } from '../../lib/api.js';
 import Button from '../../components/ui/Button.jsx';
 import Modal from '../../components/ui/Modal.jsx';
 import { Field, Input, Select, Textarea } from '../../components/ui/Field.jsx';
 import { PageSpinner, Badge, EmptyState } from '../../components/ui/Misc.jsx';
 import { useToast } from '../../components/ui/Toast.jsx';
 import GoalAiSuggestions from '../../components/ai/GoalSuggestion.jsx';
+import HealthProfileSection from '../../components/HealthProfile.jsx';
+import MeasurementSection from '../../components/MeasurementSection.jsx';
 
 const EMPTY_ENROLL = { membership_plan_id: '', start_date: new Date().toISOString().slice(0, 10), discount: 0, payment_status: 'PAID', auto_renew: false };
 const EMPTY_FREEZE = { freeze_start_date: '', freeze_end_date: '' };
@@ -25,6 +27,9 @@ const GOAL_LABELS = {
   FITNESS: 'General fitness',
 };
 const UNIT_LABELS = { KG: 'kg', PERCENT: '%', REPS: 'reps', MINUTES: 'min' };
+
+const fmtDate = (v) =>
+  v ? new Date(v).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' }) : '—';
 
 export default function MemberDetail() {
   usePageMeta('Member profile', '');
@@ -50,6 +55,8 @@ export default function MemberDetail() {
   const [prefs, setPrefs] = useState(EMPTY_PREFS);
   const [goalSaving, setGoalSaving] = useState(false);
   const [goalError, setGoalError] = useState('');
+  const [hp, setHp] = useState(null);
+  const [measurements, setMeasurements] = useState([]);
 
   const load = () => {
     memberApi
@@ -67,12 +74,35 @@ export default function MemberDetail() {
       .catch(() => setGoals([]));
   };
 
+  // API returns 404 when there are no measurements at all, so treat any error as "none".
+  const loadMeasurements = () =>
+    measurementApi
+      .list()
+      .then((res) =>
+        setMeasurements(
+          (res.data || [])
+            .filter((m) => m.member_id === id)
+            .sort((a, b) => new Date(b.measured_at) - new Date(a.measured_at))
+        )
+      )
+      .catch(() => setMeasurements([]));
+
   useEffect(() => {
     load();
     loadGoals();
+    loadMeasurements();
     membershipPlanApi.list().then((res) => setPlans(res.data)).catch(() => setPlans([]));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
+
+  const loadHp = () =>
+    healthProfileApi.list()
+      .then((res) => setHp((res.data || []).find((p) => p.member_id === id) || null))
+      .catch(() => setHp(null)); // 404 aata hai jab koi profile hi nahi
+
+  useEffect(() => { loadHp(); }, [id]);
+
+  const latestMeasurement = measurements[0] || null;
 
   const openEnroll = () => {
     setEnrollForm({ ...EMPTY_ENROLL, membership_plan_id: plans[0]?.id || '' });
@@ -135,8 +165,21 @@ export default function MemberDetail() {
     }
   };
 
+  const scrollToMeasurements = () =>
+    document.getElementById('measurements')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
   const openGoal = () => {
-    setGoalForm({ ...EMPTY_GOAL, target_date: daysFromNow(90) });
+    // A goal (and its AI suggestions) needs a measurement to start from.
+    if (!latestMeasurement) {
+      toast.error('Add a measurement first. Goals and AI suggestions start from it.');
+      scrollToMeasurements();
+      return;
+    }
+    setGoalForm({
+      ...EMPTY_GOAL,
+      target_date: daysFromNow(90),
+      start_value: EMPTY_GOAL.target_unit === 'KG' ? latestMeasurement.weight : '',
+    });
     setPrefs(EMPTY_PREFS);
     setGoalError('');
     setGoalOpen(true);
@@ -145,6 +188,10 @@ export default function MemberDetail() {
   const onSaveGoal = async (e) => {
     e.preventDefault();
     setGoalError('');
+    if (!latestMeasurement) {
+      setGoalError('Add a measurement for this member before saving a goal.');
+      return;
+    }
     setGoalSaving(true);
     try {
       await goalApi.create({
@@ -210,22 +257,22 @@ export default function MemberDetail() {
           <InfoRow icon={Mail} label="Email" value={member.email} />
           <InfoRow icon={CalendarDays} label="Joined" value={String(member.joining_date).slice(0, 10)} />
           <InfoRow icon={MapPin} label="Address" value={member.address || '—'} />
-       <InfoRow
-  icon={Hash}
-  label="Member ID (click to copy)"
-  value={
-    <button
-      type="button"
-      onClick={() => {
-        navigator.clipboard.writeText(member.id);
-        toast.success('Member ID copied.');
-      }}
-      className="font-mono text-xs break-all text-left hover:text-volt-500"
-    >
-      {member.id}
-    </button>
-  }
-/>
+          <InfoRow
+            icon={Hash}
+            label="Member ID (click to copy)"
+            value={
+              <button
+                type="button"
+                onClick={() => {
+                  navigator.clipboard.writeText(member.id);
+                  toast.success('Member ID copied.');
+                }}
+                className="font-mono text-xs break-all text-left hover:text-volt-500"
+              >
+                {member.id}
+              </button>
+            }
+          />
         </div>
       </div>
 
@@ -277,6 +324,17 @@ export default function MemberDetail() {
         )}
       </div>
 
+      <HealthProfileSection memberId={id} memberName={member.name} profile={hp} onChanged={loadHp} />
+
+      <div id="measurements" className="scroll-mt-6">
+        <MeasurementSection
+          memberId={id}
+          memberName={member.name}
+          measurements={measurements}
+          onChanged={loadMeasurements}
+        />
+      </div>
+
       <div>
         <div className="flex items-center justify-between flex-wrap gap-3 mb-4">
           <h3 className="font-display text-2xl text-bone-100 leading-none">Goals</h3>
@@ -284,6 +342,18 @@ export default function MemberDetail() {
             <Plus size={14} /> Set goal
           </Button>
         </div>
+
+        {!latestMeasurement && (
+          <div className="mb-4 rounded-2xl border border-volt-500/30 bg-volt-500/10 px-4 py-3 flex items-center justify-between flex-wrap gap-3">
+            <p className="text-xs text-bone-100">
+              Add this member's measurement before setting a goal. Goals and AI suggestions start from it.
+            </p>
+            <Button variant="secondary" size="sm" onClick={scrollToMeasurements}>
+              <Ruler size={13} /> Go to measurements
+            </Button>
+          </div>
+        )}
+
         {goals.length === 0 ? (
           <EmptyState
             icon={Target}
@@ -373,6 +443,17 @@ export default function MemberDetail() {
 
       <Modal open={goalOpen} onClose={() => setGoalOpen(false)} title="Set goal" subtitle={member.name} width="max-w-2xl">
         <form onSubmit={onSaveGoal} className="space-y-4">
+          {latestMeasurement && (
+            <p className="text-xs text-ink-400">
+              Based on the latest measurement:{' '}
+              <span className="text-bone-100">
+                {latestMeasurement.weight} kg
+                {latestMeasurement.bmi ? ` · BMI ${Number(latestMeasurement.bmi).toFixed(1)}` : ''}
+              </span>{' '}
+              ({fmtDate(latestMeasurement.measured_at)})
+            </p>
+          )}
+
           <div className="grid grid-cols-2 gap-3">
             <Field label="Goal type" required>
               <Select required value={goalForm.goal_type} onChange={(e) => setGoalForm({ ...goalForm, goal_type: e.target.value })}>
@@ -435,7 +516,7 @@ export default function MemberDetail() {
             <Textarea rows={2} value={goalForm.notes} onChange={(e) => setGoalForm({ ...goalForm, notes: e.target.value })} />
           </Field>
 
-          <GoalAiSuggestions memberId={id} goal={goalForm} preferences={prefs} />
+          <GoalAiSuggestions memberId={id} goal={goalForm} preferences={prefs} measurement={latestMeasurement} />
 
           {goalError && <p className="text-xs text-ember-500 bg-ember-500/10 border border-ember-500/20 rounded-xl px-3 py-2">{goalError}</p>}
 

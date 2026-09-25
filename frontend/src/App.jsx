@@ -24,6 +24,8 @@ import AttendanceAdmin from "./pages/admin/AdminAttendance.jsx";
 import MemberDashboard from "./pages/member/memberDashboard.jsx";
 import BranchDashboard from "./pages/branch/BranchDashboard.jsx";
 import MemberSlotHistory from "./pages/member/memberslotHistory.jsx";
+import MyAttendance from "./pages/member/memberAttendanceHistory.jsx";
+import MyHealthProfile from "./pages/member/myhealthprofile.jsx";
 export default function App() {
   const { isAuthenticated, user } = useAuth();
   // const home =
@@ -209,6 +211,7 @@ export default function App() {
           }
         />
 
+
         <Route
           path="myslotshistory"
           element={
@@ -217,6 +220,30 @@ export default function App() {
             </ProtectedRoute>
           }
         />
+        {/* <MemberDashboard />
+
+      </ProtectedRoute>
+        
+        } /> */}
+
+        <Route path="myslot-history" element={
+          <ProtectedRoute roles={["MEMBER"]}>
+            <MemberSlotHistory />
+          </ProtectedRoute>
+        } />
+
+
+        <Route path="my-attendance" element={
+          <ProtectedRoute roles={["MEMBER"]}>
+           <MyAttendance/>
+          </ProtectedRoute>
+        }/>
+         <Route path="health-profile" element={
+          <ProtectedRoute roles={["MEMBER","ADMIN"]}>
+            <MyHealthProfile/>
+          </ProtectedRoute>
+        }/>
+
 
         {/* <Route path="myattendance" element={
           <ProtectedRoute roles={["MEMBER"]}></ProtectedRoute>
