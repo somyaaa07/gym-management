@@ -103,17 +103,18 @@ export const memberApi = {
 // ---------- Member Dashboard ----------
 export const memberDashboardApi = {
 
-  get: () => unwrap(client.get("/member-dashboard")),
+  get: () => unwrap(client.get('/member-dashboard')),
+  attendance: (month) =>
+    unwrap(client.get('/member-dashboard/my-attendance', { params: { month } })),
+
+
 };
 
 //-----Branch Dashboard -----------
 export const branchDashboardApi = {
   get: () => unwrap(client.get("/branch-dashboard")),
 
-  // get: () => unwrap(client.get('/member-dashboard')),
-  // attendance: (month) =>
-  //   unwrap(client.get('/member-dashboard/my-attendance', { params: { month } })),
-
+  
 };
 
 // ---------- Membership Plans ----------

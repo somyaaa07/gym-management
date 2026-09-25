@@ -371,7 +371,10 @@ export default function AttendanceAdmin() {
               <thead>
                 <tr className="border-b border-ink-700 text-left text-[11px] uppercase tracking-wide text-ink-500">
                   <th className="px-4 py-3 font-semibold">Member</th>
-                  <th className="px-4 py-3 font-semibold">Branch</th>
+                  {!isBranchAdmin && (
+                    <th className="px-4 py-3 font-semibold">Branch</th>
+                  )}
+
                   <th className="px-4 py-3 font-semibold">Date</th>
                   <th className="px-4 py-3 font-semibold">Check-in</th>
                   <th className="px-4 py-3 font-semibold">Status</th>
@@ -389,9 +392,11 @@ export default function AttendanceAdmin() {
                     <td className="px-4 py-3 font-medium text-bone-100">
                       {r.Member?.name || "—"}
                     </td>
-                    <td className="px-4 py-3 text-ink-400">
-                      {branchName(r.branch_id)}
-                    </td>
+                    {!isBranchAdmin && (
+                      <td className="px-4 py-3 text-ink-400">
+                        {branchName(r.branch_id)}
+                      </td>
+                    )}
                     <td className="px-4 py-3 text-ink-400">
                       <span className="inline-flex items-center gap-1.5">
                         <CalendarDays size={12} className="text-ink-500" />
