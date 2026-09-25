@@ -176,7 +176,7 @@ export default function App() {
         <Route
           path="faceidtest"
           element={
-            <ProtectedRoute roles={["ADMIN"]}>
+            <ProtectedRoute roles={["ADMIN",'BRANCH_ADMIN']}>
               <FaceIdTest />
             </ProtectedRoute>
           }
