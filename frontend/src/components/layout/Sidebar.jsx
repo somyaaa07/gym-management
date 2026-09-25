@@ -1,5 +1,4 @@
 import { NavLink } from "react-router-dom";
-
 import {
   LayoutGrid,
   Building2,
@@ -94,7 +93,7 @@ const ADMIN_NAV = [
 
 const BRANCH_NAV = [
   {
-    to: "/app/dashboard",
+    to: "/app/branch-dashboard",
     label: "Overview",
     icon: LayoutGrid,
   },
@@ -137,7 +136,9 @@ const BRANCH_NAV = [
 ];
 
 // MEMBER SIDEBAR
-
+// Self-service links only — no :id needed anywhere here. The member is
+// resolved on the backend from the logged-in token (see
+// memberDashboard.controller.js -> findLoggedInMember), not from the URL.
 const MEMBER_NAV = [
   {
     to: "/app/member-dashboard",
@@ -159,18 +160,13 @@ const MEMBER_NAV = [
     label: "My Attendance",
     icon: ScanFace,
   },
-  // {
-  //   to: "/app/my-progress",
-  //   label: "My Progress",
-  //   icon: TrendingUp,
-  // },
   {
-    to: "/app/my-diet",
+    to: "/app/my-diet-plan",
     label: "Diet Plan",
     icon: Utensils,
   },
   {
-    to: "/app/my-exercises",
+    to: "/app/my-workout-plan",
     label: "Exercises",
     icon: Dumbbell,
   },

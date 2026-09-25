@@ -7,5 +7,6 @@ const router = express.Router();
 
 router.get('/models', authMiddleware, roleMiddleware('ADMIN'), aiController.getModels);
 router.post('/suggest', authMiddleware, roleMiddleware('ADMIN'), aiController.suggestPlan);
+router.post('/apply', authMiddleware, roleMiddleware('ADMIN'), aiController.applyPlan)
 
 export default router;

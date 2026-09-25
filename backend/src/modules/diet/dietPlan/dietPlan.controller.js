@@ -1,4 +1,4 @@
-import { DietPlan,Member } from "../../../model/index.js";
+import { DietPlan,Member,DietPlanMeal, } from "../../../model/index.js";
 import { createDietPlanSchema,updateDietPlanSchema } from "./dietPlan.validation.js";
 
 export const createDietPlan = async(req,res)=>{
@@ -228,3 +228,29 @@ export const deleteDietPlan = async (req,res)=>{
         })
     }
 }
+
+export const getDietPlansByMember = async (req, res) => {
+    try {
+        const tenant_id = req.user.tenant_id;
+        const { memberId } = req.params;
+
+        const dietPlans = await DietPlan.findAll({
+            where: { member_id: memberId, tenant_id },
+            include: [{ model: DietPlanMeal }],
+            order: [['created_at', 'DESC']],
+        });
+
+        return res.status(200).json({
+            success: true,
+            message: "Diet plans retrieved successfully",
+            data: dietPlans
+        });
+    }
+    catch (err) {
+        console.log("Error retrieving member diet plans", err);
+        return res.status(500).json({
+            success: false,
+            message: "Internal Server Error"
+        });
+    }
+};

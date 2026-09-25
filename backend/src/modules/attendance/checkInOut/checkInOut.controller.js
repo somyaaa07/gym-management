@@ -263,6 +263,19 @@ export const getAttendanceHistory = async(req,res)=>{
 
         }
 
+        // Branch admi only
+
+        if(req.user.role === "BRANCH_ADMIN"){
+            if(!req.user.branch_id){
+                return res.status(403).json({
+                    success:false,
+                    message:"Branch admin is not assign to any branch "
+                })
+            }
+
+            whereClause.branch_id = req.user.branch_id;
+        }
+
         const attendance = await Attendance.findAll({
             where: whereClause,
                 include:[{

@@ -1,5 +1,6 @@
 import {
   Member,
+  MembershipPlan,
   MemberMembership,
   MemberSlots,
   Attendance,
@@ -8,6 +9,9 @@ import {
   HealthProfile,
   DietPlan,
   DietPlanMeal,
+  WorkoutPlan,
+  WorkoutPlanExercise,
+  Exercise,
   Branch,
 } from "../../model/index.js";
 
@@ -24,6 +28,37 @@ const findLoggedInMember = (req, attributes) =>
     },
     ...(attributes && { attributes }),
   });
+
+// Single source of truth for membership day-math, so dashboard and the
+// dedicated my-membership endpoint never drift apart again.
+// Always zeroes out time-of-day before diffing — otherwise Math.ceil()
+// silently adds a phantom extra day depending on what time "now" is.
+const computeMembershipMeta = (membership) => {
+  if (!membership) {
+    return { days_remaining: null, is_expired: null, freeze_days_remaining: null };
+  }
+
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  const endDate = new Date(membership.end_date);
+  endDate.setHours(0, 0, 0, 0);
+
+  const diffTime = endDate.getTime() - today.getTime();
+  const days_remaining = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+  const is_expired = days_remaining < 0;
+
+  let freeze_days_remaining = null;
+  if (membership.status === "FROZEN" && membership.freeze_end_date) {
+    const freezeEnd = new Date(membership.freeze_end_date);
+    freezeEnd.setHours(0, 0, 0, 0);
+    freeze_days_remaining = Math.ceil(
+      (freezeEnd.getTime() - today.getTime()) / (1000 * 60 * 60 * 24)
+    );
+  }
+
+  return { days_remaining, is_expired, freeze_days_remaining };
+};
 
 // =====================================================
 // MEMBER DASHBOARD
@@ -81,11 +116,32 @@ export const getMemberDashboard = async (req, res) => {
       ],
     });
 
-    // 3. MEMBERSHIP (latest)
-    const membership = await MemberMembership.findOne({
+    // 3. MEMBERSHIP (latest, same ACTIVE/FROZEN-preference + day-math as getMyMembership)
+    const allMemberships = await MemberMembership.findAll({
       where: { member_id, tenant_id },
+      include: [
+        {
+          model: MembershipPlan,
+          attributes: [
+            "id",
+            "name",
+            "description",
+            "duration",
+            "duration_unit",
+            "access_type",
+            "status",
+          ],
+        },
+      ],
       order: [["created_at", "DESC"]],
     });
+
+    const membership =
+      allMemberships.find((m) => m.status === "ACTIVE" || m.status === "FROZEN") ||
+      allMemberships[0] ||
+      null;
+
+    const membershipMeta = computeMembershipMeta(membership);
 
     // 4. SLOT (current + history)
     const allSlots = await MemberSlots.findAll({
@@ -170,9 +226,9 @@ export const getMemberDashboard = async (req, res) => {
 
     const dietMeals = activeDietPlan
       ? await DietPlanMeal.findAll({
-          where: { diet_plan_id: activeDietPlan.id },
-          order: [["meal_time", "ASC"]],
-        })
+        where: { diet_plan_id: activeDietPlan.id },
+        order: [["meal_time", "ASC"]],
+      })
       : [];
 
     // 10. RESPONSE
@@ -183,6 +239,7 @@ export const getMemberDashboard = async (req, res) => {
         member,
         branch,
         membership,
+        membership_meta: membershipMeta, // { days_remaining, is_expired, freeze_days_remaining }
         slot,
         slot_history: slotHistory,
         attendance: {
@@ -269,34 +326,249 @@ export const getMyAttendance = async (req, res) => {
   }
 };
 
-export const getMyGoals = async(req,res)=>{
-  try{
+// Member Dashboard controller — fetches goals belonging to the logged-in
+// member only (not all tenant goals, not a branch's goals — that's what
+// getAllGoals / getBranchGoals already cover on the admin side).
+
+export const getMyGoals = async (req, res) => {
+  try {
     const tenant_id = req.user.tenant_id;
-    const member_id = req.params.member_id;
+    //  const member_id = req.user.id confirm: is a MEMBER's req.user.id the Member row id?
 
-    const goals = await Goal.findAll({
-      where:{
-        member_id,
-        tenant_id
+    const member = await Member.findOne({
+      where: {
+        user_id: req.user.id,
+        tenant_id: req.user.tenant_id
       }
-    })
+    });
 
-    if(goals.length === 0){
-      return res.status(404).json({success:false,message:"No goals found"})
+
+    const member_id = member.id;
+    const goals = await Goal.findAll({
+    where: {
+        tenant_id: req.user.tenant_id,
+        member_id: member.id,
+        status: {
+            [Op.ne]: 'CANCELLED'
+        }
+    },
+    order: [['target_date', 'ASC']]
+});
+
+    if (goals.length === 0) {
+      return res.status(404).json({
+        status: false,
+        message: "No goals found"
+      })
     }
 
     return res.status(200).json({
-      success:true,
-      message:"Goals fetched successfully",
-      data:goals
+      status: true,
+      message: "Goals fetched successfully",
+      data: goals
     })
-
   }
-  catch(err){
-    console.log("error in getMyGoals",err)
+  catch (err) {
+    console.log("Error in getMyGoals", err)
     return res.status(500).json({
-      success:false,
-      message:"Internal server error"
+      success: false,
+      message: "Internal Server Error"
     })
   }
 }
+
+// Lets a member log progress on their own goal by updating start_value
+// (your schema tracks current progress via start_value, updated over time,
+// rather than a separate current_value column — confirm that's intended).
+export const logMyGoalProgress = async (req, res) => {
+  try {
+    const tenant_id = req.user.tenant_id;
+    const member_id = req.user.id;
+    const goal_id = req.params.id;
+    const { start_value } = req.body;
+
+    if (start_value === undefined) {
+      return res.status(400).json({
+        status: false,
+        message: "start_value is required"
+      })
+    }
+
+    const goal = await Goal.findOne({
+      where: {
+        id: goal_id,
+        tenant_id: tenant_id,
+        member_id: member_id,
+        status: 'ACTIVE'
+      }
+    })
+
+    if (!goal) {
+      return res.status(404).json({
+        status: false,
+        message: "Goal not found"
+      })
+    }
+
+    const isDone = start_value >= goal.target_value;
+
+    await goal.update({
+      start_value,
+      status: isDone ? 'COMPLETED' : 'ACTIVE'
+    })
+
+    return res.status(200).json({
+      status: true,
+      message: "Progress updated successfully",
+      data: goal
+    })
+  }
+  catch (err) {
+    console.log("Error in logMyGoalProgress", err)
+    return res.status(500).json({
+      success: false,
+      message: "Internal Server Error"
+    })
+  }
+}
+
+// =====================================================
+// MY DIET PLANS (self-service, read side)
+// Mirrors getDietPlansByMember (admin side) but resolves the
+// member from the logged-in token instead of a URL param.
+// =====================================================
+
+export const getMyDietPlans = async (req, res) => {
+  try {
+    const tenant_id = req.user.tenant_id;
+
+    const member = await findLoggedInMember(req, ["id"]);
+
+    if (!member) {
+      return res.status(404).json({ success: false, message: "Member not found" });
+    }
+
+    const dietPlans = await DietPlan.findAll({
+      where: { member_id: member.id, tenant_id },
+      include: [{ model: DietPlanMeal }],
+      order: [["created_at", "DESC"]],
+    });
+
+    return res.status(200).json({
+      success: true,
+      message: "Diet plans fetched successfully",
+      data: dietPlans,
+    });
+  } catch (err) {
+    console.error("Error in getMyDietPlans:", err);
+    return res.status(500).json({ success: false, message: "Internal server error" });
+  }
+};
+
+// =====================================================
+// MY WORKOUT PLANS (self-service, read side)
+// Mirrors getWorkoutPlansByMember (admin side) but resolves the
+// member from the logged-in token instead of a URL param.
+// =====================================================
+
+export const getMyWorkoutPlans = async (req, res) => {
+  try {
+    const tenant_id = req.user.tenant_id;
+
+    const member = await findLoggedInMember(req, ["id"]);
+
+    if (!member) {
+      return res.status(404).json({ success: false, message: "Member not found" });
+    }
+
+    const workoutPlans = await WorkoutPlan.findAll({
+      where: { member_id: member.id, tenant_id },
+      include: [
+        {
+          model: WorkoutPlanExercise,
+          include: [{ model: Exercise, attributes: ["id", "name", "muscle_group", "category", "equipment"] }],
+        },
+      ],
+      order: [["created_at", "DESC"]],
+    });
+
+    return res.status(200).json({
+      success: true,
+      message: "Workout plans fetched successfully",
+      data: workoutPlans,
+    });
+  } catch (err) {
+    console.error("Error in getMyWorkoutPlans:", err);
+    return res.status(500).json({ success: false, message: "Internal server error" });
+  }
+};
+
+// =====================================================
+// MY MEMBERSHIP (self-service, read side)
+// Fetches the logged-in member's current + past memberships,
+// with plan details and a computed days_remaining.
+// =====================================================
+
+export const getMyMembership = async (req, res) => {
+  try {
+    const tenant_id = req.user.tenant_id;
+
+    const member = await findLoggedInMember(req, ["id"]);
+
+    if (!member) {
+      return res.status(404).json({ success: false, message: "Member not found" });
+    }
+
+    const memberships = await MemberMembership.findAll({
+      where: { member_id: member.id, tenant_id },
+      include: [
+        {
+          model: MembershipPlan,
+          attributes: [
+            "id",
+            "name",
+            "description",
+            "duration",
+            "duration_unit",
+            "access_type",
+            "status",
+          ],
+        },
+      ],
+      order: [["created_at", "DESC"]],
+    });
+
+    if (memberships.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: "No membership found",
+      });
+    }
+
+    const currentMembership =
+      memberships.find((m) => m.status === "ACTIVE" || m.status === "FROZEN") ||
+      memberships[0];
+
+    const membershipHistory = memberships.filter(
+      (m) => m.id !== currentMembership.id
+    );
+
+    const { days_remaining, is_expired, freeze_days_remaining } =
+      computeMembershipMeta(currentMembership);
+
+    return res.status(200).json({
+      success: true,
+      message: "Membership fetched successfully",
+      data: {
+        current: currentMembership,
+        days_remaining,
+        is_expired,
+        freeze_days_remaining,
+        history: membershipHistory,
+      },
+    });
+  } catch (err) {
+    console.error("Error in getMyMembership:", err);
+    return res.status(500).json({ success: false, message: "Internal server error" });
+  }
+};

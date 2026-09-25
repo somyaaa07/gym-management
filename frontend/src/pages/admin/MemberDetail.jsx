@@ -11,6 +11,7 @@ import { useToast } from '../../components/ui/Toast.jsx';
 import GoalAiSuggestions from '../../components/ai/GoalSuggestion.jsx';
 import HealthProfileSection from '../../components/HealthProfile.jsx';
 import MeasurementSection from '../../components/MeasurementSection.jsx';
+import PlansSection from '../../components/PlansSection.jsx';
 
 const EMPTY_ENROLL = { membership_plan_id: '', start_date: new Date().toISOString().slice(0, 10), discount: 0, payment_status: 'PAID', auto_renew: false };
 const EMPTY_FREEZE = { freeze_start_date: '', freeze_end_date: '' };
@@ -57,7 +58,8 @@ export default function MemberDetail() {
   const [goalError, setGoalError] = useState('');
   const [hp, setHp] = useState(null);
   const [measurements, setMeasurements] = useState([]);
-
+  const [savedGoalId, setSavedGoalId] = useState(null);
+  const [plansReloadKey, setPlansReloadKey] = useState(0);
   const load = () => {
     memberApi
       .getById(id)
@@ -175,6 +177,7 @@ export default function MemberDetail() {
       scrollToMeasurements();
       return;
     }
+    setSavedGoalId(null);
     setGoalForm({
       ...EMPTY_GOAL,
       target_date: daysFromNow(90),
@@ -194,7 +197,7 @@ export default function MemberDetail() {
     }
     setGoalSaving(true);
     try {
-      await goalApi.create({
+      const res = await goalApi.create({
         member_id: id,
         goal_type: goalForm.goal_type,
         target_value: Number(goalForm.target_value),
@@ -203,8 +206,8 @@ export default function MemberDetail() {
         target_date: goalForm.target_date,
         notes: goalForm.notes.trim() || undefined,
       });
+      setSavedGoalId(res.data.id);
       toast.success('Goal saved.');
-      setGoalOpen(false);
       loadGoals();
     } catch (err) {
       setGoalError(extractErrorMessage(err, 'Could not save goal'));
@@ -379,6 +382,8 @@ export default function MemberDetail() {
           </div>
         )}
       </div>
+            <PlansSection memberId={id} reloadKey={plansReloadKey} />
+
 
       <Modal open={enrollOpen} onClose={() => setEnrollOpen(false)} title="Enroll in plan" subtitle={member.name}>
         <form onSubmit={onEnroll} className="space-y-4">
@@ -516,8 +521,17 @@ export default function MemberDetail() {
             <Textarea rows={2} value={goalForm.notes} onChange={(e) => setGoalForm({ ...goalForm, notes: e.target.value })} />
           </Field>
 
-          <GoalAiSuggestions memberId={id} goal={goalForm} preferences={prefs} measurement={latestMeasurement} />
-
+          <GoalAiSuggestions
+            memberId={id}
+            goal={goalForm}
+            preferences={prefs}
+            goalId={savedGoalId}
+            onApplied={() => {
+              toast.success('Plan applied!');
+              loadGoals();
+              setPlansReloadKey((k) => k + 1);
+            }}
+          />
           {goalError && <p className="text-xs text-ember-500 bg-ember-500/10 border border-ember-500/20 rounded-xl px-3 py-2">{goalError}</p>}
 
           <div className="flex gap-2 pt-1">

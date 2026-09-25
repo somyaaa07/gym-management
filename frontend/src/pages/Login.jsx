@@ -17,20 +17,29 @@ export default function Login() {
   const [error, setError] = useState("");
   const [showPassword, setShowPassword] = useState(false);
 
-  const onSubmit = async (e) => {
-    e.preventDefault();
-    setError("");
-    setLoading(true);
-    try {
-      await login(form);
-      toast.success("Welcome back.");
-      navigate("/app/dashboard");
-    } catch (err) {
-      setError(extractErrorMessage(err, "Could not sign in"));
-    } finally {
-      setLoading(false);
-    }
-  };
+ const onSubmit = async (e) => {
+  e.preventDefault();
+  setError("");
+  setLoading(true);
+  try {
+    const loggedInUser = await login(form);
+    toast.success("Welcome back.");
+
+    const role = loggedInUser?.role;
+    const home =
+      role === "MEMBER"
+        ? "/app/member-dashboard"
+        : role === "BRANCH_ADMIN"
+          ? "/app/branch-dashboard"
+          : "/app/dashboard";
+
+    navigate(home, { replace: true });
+  } catch (err) {
+    setError(extractErrorMessage(err, "Could not sign in"));
+  } finally {
+    setLoading(false);
+  }
+};
 
   return (
     <AuthShell

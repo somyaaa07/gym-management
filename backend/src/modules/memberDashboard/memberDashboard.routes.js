@@ -14,6 +14,12 @@ router.get(
 router.get("/my-attendance",authMiddleware,tenantMiddleware,roleMiddleware("MEMBER"), MemberDashboardController.getMyAttendance);
 
 router.get("/my-goals",authMiddleware,tenantMiddleware,roleMiddleware("MEMBER"), MemberDashboardController.getMyGoals);
+router.get("/my-goals-log",authMiddleware,tenantMiddleware,roleMiddleware("MEMBER"), MemberDashboardController.logMyGoalProgress);
+
+// NEW: self-service diet plan / workout plan (read side)
+router.get("/my-diet-plan",authMiddleware,tenantMiddleware,roleMiddleware("MEMBER"), MemberDashboardController.getMyDietPlans);
+router.get("/my-workout-plan",authMiddleware,tenantMiddleware,roleMiddleware("MEMBER"), MemberDashboardController.getMyWorkoutPlans);
+
+router.get("/my-membership", authMiddleware,tenantMiddleware,roleMiddleware("MEMBER"), MemberDashboardController.getMyMembership);
 
 export default router;
- 

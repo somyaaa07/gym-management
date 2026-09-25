@@ -1,37 +1,16 @@
 import { useEffect, useMemo, useState } from "react";
 import {
   Target,
-  Plus,
   X,
   Calendar,
   Flame,
   CheckCircle2,
-  Circle,
+  Ban,
   Pencil,
-  Trash2,
-  TrendingUp,
+  StickyNote,
+  RefreshCw,
 } from "lucide-react";
 import { memberDashboardApi } from "../../lib/api"; // adjust path to your actual client
-
-/**
- * MyGoals
- * ------------------------------------------------------------------
- * Member-facing goals page. Matches the theme used across the rest of
- * the Gym Management app (dark indigo sidebar, lavender-grey canvas,
- * white cards, violet accent).
- *
- * Wiring notes for your codebase:
- *  - Expects `memberDashboardApi.goals()` -> GET /member-dashboard/my-goals
- *    to return { success, data: Goal[] } (this is your getMyGoals response).
- *  - `onCreateGoal` / `onUpdateProgress` / `onDeleteGoal` are stubbed to
- *    call endpoints you likely don't have yet — swap them for real calls
- *    (e.g. memberDashboardApi.createGoal(payload)) when ready. Until then
- *    they update local state optimistically so the UI is fully usable.
- *
- * Goal shape assumed:
- *  { id, title, category, target_value, current_value, unit,
- *    target_date, status } // status: "active" | "completed"
- */
 
 const THEME = {
   bg: "#F5F5FA",
@@ -46,73 +25,46 @@ const THEME = {
   successSoft: "#E7F8F1",
   warning: "#E08A1E",
   warningSoft: "#FCF0DE",
+  cancelled: "#B4B3C6",
+  cancelledSoft: "#F1F0F6",
 };
 
-const CATEGORY_META = {
-  strength: { label: "Strength", color: "#6D5CF6" },
-  weight: { label: "Weight", color: "#1FAE7A" },
-  endurance: { label: "Endurance", color: "#E08A1E" },
-  habit: { label: "Habit", color: "#3B9AE1" },
-};
-
-const seedGoals = [
-  {
-    id: "g1",
-    title: "Bench press bodyweight",
-    category: "strength",
-    unit: "kg",
-    current_value: 62,
-    target_value: 75,
-    target_date: "2026-12-15",
-    status: "active",
-  },
-  {
-    id: "g2",
-    title: "Lose 6 kg",
-    category: "weight",
-    unit: "kg",
-    current_value: 3.5,
-    target_value: 6,
-    target_date: "2026-11-01",
-    status: "active",
-  },
-  {
-    id: "g3",
-    title: "Run 5K under 25 minutes",
-    category: "endurance",
-    unit: "min",
-    current_value: 27,
-    target_value: 25,
-    target_date: "2026-10-20",
-    status: "active",
-    inverse: true,
-  },
-  {
-    id: "g4",
-    title: "Gym 4x a week for a month",
-    category: "habit",
-    unit: "sessions",
-    current_value: 16,
-    target_value: 16,
-    target_date: "2026-09-01",
-    status: "completed",
-  },
-];
+const TYPE_PALETTE = ["#6D5CF6", "#1FAE7A", "#E08A1E", "#3B9AE1", "#D6558C", "#2FB1B1"];
+function colorForType(label) {
+  const str = label || "GOAL";
+  let hash = 0;
+  for (let i = 0; i < str.length; i++) hash = str.charCodeAt(i) + ((hash << 5) - hash);
+  return TYPE_PALETTE[Math.abs(hash) % TYPE_PALETTE.length];
+}
+function formatTypeLabel(label) {
+  if (!label) return "Goal";
+  return label
+    .toLowerCase()
+    .split("_")
+    .map((w) => w[0].toUpperCase() + w.slice(1))
+    .join(" ");
+}
 
 function daysLeft(dateStr) {
-  const diff = Math.ceil((new Date(dateStr) - new Date()) / (1000 * 60 * 60 * 24));
-  return diff;
+  if (!dateStr) return null;
+  return Math.ceil((new Date(dateStr) - new Date()) / (1000 * 60 * 60 * 24));
 }
 
 function progressPct(goal) {
-  if (goal.inverse) {
-    // lower is better (e.g. a time). Treat "started from" as unknown,
-    // so just show how close current is to target as a ratio capped at 100.
-    const pct = (goal.target_value / goal.current_value) * 100;
-    return Math.max(0, Math.min(100, Math.round(pct)));
+  const { start_value: s, target_value: t } = goal;
+  if (t === s) return 100;
+  if (t > s) {
+    return Math.max(0, Math.min(100, Math.round((s / t) * 100)));
   }
-  const pct = (goal.current_value / goal.target_value) * 100;
-  return Math.max(0, Math.min(100, Math.round(pct)));
+  return Math.max(0, Math.min(100, Math.round((t / s) * 100)));
+}
+
+function remainingLabel(goal) {
+  const { start_value: s, target_value: t, target_unit: u } = goal;
+  const diff = Math.abs(t - s);
+  if (diff === 0) return "Target reached";
+  const dir = t > s ? "to gain" : "to go";
+  return `${diff} ${u || ""} ${dir}`.replace(/\s+/g, " ").trim();
 }
 
 function GoalRing({ pct, color }) {
@@ -135,33 +87,58 @@ function GoalRing({ pct, color }) {
         transform="rotate(-90 28 28)"
         style={{ transition: "stroke-dashoffset 500ms ease" }}
       />
-      <text
-        x="28"
-        y="32"
-        textAnchor="middle"
-        fontSize="13"
-        fontWeight="700"
-        fill={THEME.text}
-      >
+      <text x="28" y="32" textAnchor="middle" fontSize="13" fontWeight="700" fill={THEME.text}>
         {pct}%
       </text>
     </svg>
   );
 }
 
-function AddGoalModal({ open, onClose, onSave }) {
-  const [form, setForm] = useState({
-    title: "",
-    category: "strength",
-    current_value: "",
-    target_value: "",
-    unit: "",
-    target_date: "",
-  });
+function StatusBadge({ status }) {
+  if (status === "COMPLETED") {
+    return (
+      <span
+        className="text-xs font-semibold px-2 py-0.5 rounded-full flex items-center gap-1"
+        style={{ background: THEME.successSoft, color: THEME.success }}
+      >
+        <CheckCircle2 size={12} /> Completed
+      </span>
+    );
+  }
+  if (status === "CANCELLED") {
+    return (
+      <span
+        className="text-xs font-semibold px-2 py-0.5 rounded-full flex items-center gap-1"
+        style={{ background: THEME.cancelledSoft, color: THEME.cancelled }}
+      >
+        <Ban size={12} /> Cancelled
+      </span>
+    );
+  }
+  return null;
+}
 
-  if (!open) return null;
+function LogProgressModal({ open, goal, onClose, onSubmit, submitting }) {
+  const [value, setValue] = useState("");
 
-  const canSave = form.title.trim() && form.target_value && form.target_date;
+  useEffect(() => {
+    if (goal) setValue(String(goal.start_value ?? ""));
+  }, [goal]);
+
+  useEffect(() => {
+    if (!open) return;
+    const onKey = (e) => e.key === "Escape" && onClose();
+    document.addEventListener("keydown", onKey);
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.removeEventListener("keydown", onKey);
+      document.body.style.overflow = "";
+    };
+  }, [open, onClose]);
+
+  if (!open || !goal) return null;
+
+  const canSubmit = value !== "" && !submitting;
 
   return (
     <div
@@ -170,145 +147,54 @@ function AddGoalModal({ open, onClose, onSave }) {
       onClick={onClose}
     >
       <div
-        className="w-full max-w-md rounded-2xl p-6"
-        style={{ background: THEME.card }}
+        className="w-full max-w-sm rounded-2xl p-6"
+        style={{ background: THEME.card, boxShadow: "0 20px 60px rgba(20,18,40,0.25)" }}
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="flex items-center justify-between mb-5">
+        <div className="flex items-center justify-between mb-1">
           <h3 className="text-lg font-bold" style={{ color: THEME.text }}>
-            New goal
+            Log progress
           </h3>
           <button
             onClick={onClose}
-            className="p-1.5 rounded-lg hover:bg-black/5"
+            className="p-1.5 rounded-lg transition-colors hover:bg-black/5"
             aria-label="Close"
           >
             <X size={18} color={THEME.muted} />
           </button>
         </div>
+        <p className="text-sm mb-5" style={{ color: THEME.muted }}>
+          {formatTypeLabel(goal.goal_type)} · target {goal.target_value} {goal.target_unit}
+        </p>
 
-        <div className="space-y-4">
-          <div>
-            <label className="text-sm font-medium block mb-1.5" style={{ color: THEME.text }}>
-              What do you want to achieve?
-            </label>
-            <input
-              value={form.title}
-              onChange={(e) => setForm({ ...form, title: e.target.value })}
-              placeholder="e.g. Squat 100 kg"
-              className="w-full rounded-xl px-3.5 py-2.5 text-sm outline-none focus:ring-2"
-              style={{
-                border: `1px solid ${THEME.border}`,
-                background: THEME.bg,
-                color: THEME.text,
-              }}
-            />
-          </div>
+        <label className="text-sm font-medium block mb-1.5" style={{ color: THEME.text }}>
+          Current {goal.target_unit || "value"}
+        </label>
+        <input
+          autoFocus
+          type="number"
+          value={value}
+          onChange={(e) => setValue(e.target.value)}
+          onKeyDown={(e) => e.key === "Enter" && canSubmit && onSubmit(Number(value))}
+          className="w-full rounded-xl px-3.5 py-2.5 text-sm outline-none mb-5 transition-shadow focus:ring-2"
+          style={{ border: `1px solid ${THEME.border}`, background: THEME.bg, color: THEME.text, "--tw-ring-color": THEME.accentSoft }}
+        />
 
-          <div>
-            <label className="text-sm font-medium block mb-1.5" style={{ color: THEME.text }}>
-              Category
-            </label>
-            <div className="flex flex-wrap gap-2">
-              {Object.entries(CATEGORY_META).map(([key, meta]) => (
-                <button
-                  key={key}
-                  onClick={() => setForm({ ...form, category: key })}
-                  className="px-3 py-1.5 rounded-full text-sm font-medium transition-colors"
-                  style={{
-                    background: form.category === key ? meta.color : THEME.track,
-                    color: form.category === key ? "#fff" : THEME.muted,
-                  }}
-                >
-                  {meta.label}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          <div className="grid grid-cols-2 gap-3">
-            <div>
-              <label className="text-sm font-medium block mb-1.5" style={{ color: THEME.text }}>
-                Starting point
-              </label>
-              <input
-                value={form.current_value}
-                onChange={(e) => setForm({ ...form, current_value: e.target.value })}
-                placeholder="0"
-                type="number"
-                className="w-full rounded-xl px-3.5 py-2.5 text-sm outline-none"
-                style={{ border: `1px solid ${THEME.border}`, background: THEME.bg, color: THEME.text }}
-              />
-            </div>
-            <div>
-              <label className="text-sm font-medium block mb-1.5" style={{ color: THEME.text }}>
-                Target
-              </label>
-              <input
-                value={form.target_value}
-                onChange={(e) => setForm({ ...form, target_value: e.target.value })}
-                placeholder="e.g. 75"
-                type="number"
-                className="w-full rounded-xl px-3.5 py-2.5 text-sm outline-none"
-                style={{ border: `1px solid ${THEME.border}`, background: THEME.bg, color: THEME.text }}
-              />
-            </div>
-          </div>
-
-          <div className="grid grid-cols-2 gap-3">
-            <div>
-              <label className="text-sm font-medium block mb-1.5" style={{ color: THEME.text }}>
-                Unit
-              </label>
-              <input
-                value={form.unit}
-                onChange={(e) => setForm({ ...form, unit: e.target.value })}
-                placeholder="kg, min, sessions..."
-                className="w-full rounded-xl px-3.5 py-2.5 text-sm outline-none"
-                style={{ border: `1px solid ${THEME.border}`, background: THEME.bg, color: THEME.text }}
-              />
-            </div>
-            <div>
-              <label className="text-sm font-medium block mb-1.5" style={{ color: THEME.text }}>
-                Target date
-              </label>
-              <input
-                value={form.target_date}
-                onChange={(e) => setForm({ ...form, target_date: e.target.value })}
-                type="date"
-                className="w-full rounded-xl px-3.5 py-2.5 text-sm outline-none"
-                style={{ border: `1px solid ${THEME.border}`, background: THEME.bg, color: THEME.text }}
-              />
-            </div>
-          </div>
-        </div>
-
-        <div className="flex gap-3 mt-6">
+        <div className="flex gap-3">
           <button
             onClick={onClose}
-            className="flex-1 rounded-xl py-2.5 text-sm font-semibold"
+            className="flex-1 rounded-xl py-2.5 text-sm font-semibold transition-opacity hover:opacity-80"
             style={{ background: THEME.track, color: THEME.text }}
           >
             Cancel
           </button>
           <button
-            disabled={!canSave}
-            onClick={() => {
-              onSave({
-                id: `g${Date.now()}`,
-                title: form.title.trim(),
-                category: form.category,
-                current_value: Number(form.current_value) || 0,
-                target_value: Number(form.target_value),
-                unit: form.unit || "",
-                target_date: form.target_date,
-                status: "active",
-              });
-            }}
-            className="flex-1 rounded-xl py-2.5 text-sm font-semibold text-white transition-opacity disabled:opacity-40"
+            disabled={!canSubmit}
+            onClick={() => onSubmit(Number(value))}
+            className="flex-1 rounded-xl py-2.5 text-sm font-semibold text-white disabled:opacity-40 transition-opacity hover:opacity-90"
             style={{ background: THEME.accent }}
           >
-            Save goal
+            {submitting ? "Saving..." : "Save"}
           </button>
         </div>
       </div>
@@ -316,36 +202,34 @@ function AddGoalModal({ open, onClose, onSave }) {
   );
 }
 
-function GoalCard({ goal, onDelete, onLogProgress }) {
-  const meta = CATEGORY_META[goal.category] || CATEGORY_META.strength;
+function GoalCard({ goal, onLogProgress }) {
+  const color = colorForType(goal.goal_type);
   const pct = progressPct(goal);
-  const isCompleted = goal.status === "completed";
+  const isActive = goal.status === "ACTIVE";
   const dLeft = daysLeft(goal.target_date);
+  const ringColor = goal.status === "COMPLETED" ? THEME.success : goal.status === "CANCELLED" ? THEME.cancelled : color;
 
   return (
     <div
-      className="rounded-2xl p-5 flex items-center gap-5"
-      style={{ background: THEME.card, border: `1px solid ${THEME.border}` }}
+      className="rounded-2xl p-5 flex items-start gap-5 transition-shadow hover:shadow-[0_4px_20px_rgba(31,32,51,0.06)]"
+      style={{
+        background: THEME.card,
+        border: `1px solid ${THEME.border}`,
+        opacity: goal.status === "CANCELLED" ? 0.65 : 1,
+      }}
     >
-      <GoalRing pct={pct} color={isCompleted ? THEME.success : meta.color} />
+      <GoalRing pct={pct} color={ringColor} />
 
       <div className="flex-1 min-w-0">
-        <div className="flex items-center gap-2 mb-1">
+        <div className="flex items-center gap-2 mb-1 flex-wrap">
           <span
             className="text-xs font-semibold px-2 py-0.5 rounded-full"
-            style={{ background: `${meta.color}1A`, color: meta.color }}
+            style={{ background: `${color}1A`, color }}
           >
-            {meta.label}
+            {formatTypeLabel(goal.goal_type)}
           </span>
-          {isCompleted && (
-            <span
-              className="text-xs font-semibold px-2 py-0.5 rounded-full flex items-center gap-1"
-              style={{ background: THEME.successSoft, color: THEME.success }}
-            >
-              <CheckCircle2 size={12} /> Completed
-            </span>
-          )}
-          {!isCompleted && dLeft <= 7 && dLeft >= 0 && (
+          <StatusBadge status={goal.status} />
+          {isActive && dLeft !== null && dLeft <= 7 && dLeft >= 0 && (
             <span
               className="text-xs font-semibold px-2 py-0.5 rounded-full flex items-center gap-1"
               style={{ background: THEME.warningSoft, color: THEME.warning }}
@@ -353,63 +237,98 @@ function GoalCard({ goal, onDelete, onLogProgress }) {
               <Flame size={12} /> {dLeft === 0 ? "Due today" : `${dLeft}d left`}
             </span>
           )}
+          {isActive && dLeft !== null && dLeft < 0 && (
+            <span
+              className="text-xs font-semibold px-2 py-0.5 rounded-full"
+              style={{ background: THEME.warningSoft, color: THEME.warning }}
+            >
+              Overdue
+            </span>
+          )}
         </div>
 
-        <h3 className="font-bold text-base truncate" style={{ color: THEME.text }}>
-          {goal.title}
+        <h3 className="font-bold text-base" style={{ color: THEME.text }}>
+          {goal.start_value} {goal.target_unit} → {goal.target_value} {goal.target_unit}
         </h3>
 
-        <div className="flex items-center gap-4 mt-1.5 text-sm" style={{ color: THEME.muted }}>
-          <span>
-            {goal.current_value}
-            {goal.unit} of {goal.target_value}
-            {goal.unit}
-          </span>
-          <span className="flex items-center gap-1">
-            <Calendar size={13} />
-            {new Date(goal.target_date).toLocaleDateString("en-US", {
-              day: "numeric",
-              month: "short",
-              year: "numeric",
-            })}
-          </span>
+        <div className="flex items-center gap-4 mt-1.5 text-sm flex-wrap" style={{ color: THEME.muted }}>
+          {goal.target_date && (
+            <span className="flex items-center gap-1">
+              <Calendar size={13} />
+              {new Date(goal.target_date).toLocaleDateString("en-US", {
+                day: "numeric",
+                month: "short",
+                year: "numeric",
+              })}
+            </span>
+          )}
+          {goal.status !== "CANCELLED" && <span>{remainingLabel(goal)}</span>}
         </div>
+
+        {goal.notes && (
+          <div
+            className="flex items-start gap-1.5 mt-2.5 text-sm rounded-lg px-3 py-2"
+            style={{ background: THEME.bg, color: THEME.muted }}
+          >
+            <StickyNote size={14} className="mt-0.5 shrink-0" />
+            <span>{goal.notes}</span>
+          </div>
+        )}
 
         <div className="w-full h-2 rounded-full mt-3" style={{ background: THEME.track }}>
           <div
             className="h-2 rounded-full"
-            style={{
-              width: `${pct}%`,
-              background: isCompleted ? THEME.success : meta.color,
-              transition: "width 500ms ease",
-            }}
+            style={{ width: `${pct}%`, background: ringColor, transition: "width 500ms ease" }}
           />
         </div>
       </div>
 
-      <div className="flex flex-col gap-2 shrink-0">
-        {!isCompleted && (
-          <button
-            onClick={() => onLogProgress(goal.id)}
-            className="p-2 rounded-lg hover:bg-black/5"
-            title="Log progress"
-          >
-            <Pencil size={16} color={THEME.muted} />
-          </button>
-        )}
+      {isActive && (
         <button
-          onClick={() => onDelete(goal.id)}
-          className="p-2 rounded-lg hover:bg-black/5"
-          title="Delete goal"
+          onClick={() => onLogProgress(goal)}
+          className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-sm font-semibold shrink-0 transition-opacity hover:opacity-80"
+          style={{ background: THEME.accentSoft, color: THEME.accent }}
         >
-          <Trash2 size={16} color={THEME.muted} />
+          <Pencil size={14} /> Log
         </button>
+      )}
+    </div>
+  );
+}
+
+function GoalCardSkeleton() {
+  return (
+    <div
+      className="rounded-2xl p-5 flex items-start gap-5 animate-pulse"
+      style={{ background: THEME.card, border: `1px solid ${THEME.border}` }}
+    >
+      <div className="w-14 h-14 rounded-full shrink-0" style={{ background: THEME.track }} />
+      <div className="flex-1 space-y-2.5">
+        <div className="h-4 w-24 rounded-full" style={{ background: THEME.track }} />
+        <div className="h-4 w-48 rounded" style={{ background: THEME.track }} />
+        <div className="h-2 w-full rounded-full mt-3" style={{ background: THEME.track }} />
       </div>
     </div>
   );
 }
 
-function EmptyState({ onAdd }) {
+const FILTER_EMPTY_COPY = {
+  ACTIVE: {
+    title: "No active goals",
+    description: "Your trainer hasn't set any active goals right now. Check back after your next review.",
+  },
+  COMPLETED: {
+    title: "Nothing completed yet",
+    description: "Goals you finish will show up here so you can look back on your progress.",
+  },
+  ALL: {
+    title: "No goals yet",
+    description: "Your trainer hasn't assigned any goals yet. Once they do, you'll be able to track and log your progress here.",
+  },
+};
+
+function EmptyState({ filter }) {
+  const copy = FILTER_EMPTY_COPY[filter] || FILTER_EMPTY_COPY.ALL;
   return (
     <div
       className="rounded-2xl flex flex-col items-center justify-center text-center py-20 px-6"
@@ -422,18 +341,11 @@ function EmptyState({ onAdd }) {
         <Target size={28} color={THEME.accent} />
       </div>
       <h3 className="font-bold text-lg mb-1.5" style={{ color: THEME.text }}>
-        No goals yet
+        {copy.title}
       </h3>
-      <p className="text-sm max-w-xs mb-6" style={{ color: THEME.muted }}>
-        Set a goal to track — a lift, a weight, a habit — and your progress will show up here.
+      <p className="text-sm max-w-xs" style={{ color: THEME.muted }}>
+        {copy.description}
       </p>
-      <button
-        onClick={onAdd}
-        className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold text-white"
-        style={{ background: THEME.accent }}
-      >
-        <Plus size={16} /> Add your first goal
-      </button>
     </div>
   );
 }
@@ -441,7 +353,7 @@ function EmptyState({ onAdd }) {
 function StatCard({ icon, label, value, accent }) {
   return (
     <div
-      className="rounded-2xl p-4 flex items-center gap-3 flex-1"
+      className="rounded-2xl p-4 flex items-center gap-3 flex-1 transition-shadow hover:shadow-[0_4px_20px_rgba(31,32,51,0.06)]"
       style={{ background: THEME.card, border: `1px solid ${THEME.border}` }}
     >
       <div
@@ -464,102 +376,70 @@ function StatCard({ icon, label, value, accent }) {
 
 export default function MyGoals() {
   const [goals, setGoals] = useState([]);
-  const [filter, setFilter] = useState("active"); // active | completed | all
-  const [modalOpen, setModalOpen] = useState(false);
+  const [filter, setFilter] = useState("ACTIVE");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [logTarget, setLogTarget] = useState(null);
+  const [submitting, setSubmitting] = useState(false);
 
-  useEffect(() => {
-    let cancelled = false;
+  const load = () => {
     setLoading(true);
     setError(null);
-
     memberDashboardApi
       .goals()
-      .then((res) => {
-        if (cancelled) return;
-        // matches your getMyGoals response shape: { success, message, data }
-        setGoals(res?.data ?? []);
-      })
+      .then((res) => setGoals(res?.data ?? []))
       .catch((err) => {
-        if (cancelled) return;
         console.error("Failed to load goals", err);
-        setError("Couldn't load your goals. Pull to refresh or try again.");
+        if (err?.response?.status === 404) {
+          setGoals([]);
+        } else {
+          setError("Couldn't load your goals. Please try again.");
+        }
       })
-      .finally(() => {
-        if (!cancelled) setLoading(false);
-      });
+      .finally(() => setLoading(false));
+  };
 
-    return () => {
-      cancelled = true;
-    };
-  }, []);
+  useEffect(load, []);
+
+  const counts = useMemo(
+    () => ({
+      ACTIVE: goals.filter((g) => g.status === "ACTIVE").length,
+      COMPLETED: goals.filter((g) => g.status === "COMPLETED").length,
+      ALL: goals.length,
+    }),
+    [goals]
+  );
 
   const filtered = useMemo(() => {
-    if (filter === "all") return goals;
+    if (filter === "ALL") return goals;
     return goals.filter((g) => g.status === filter);
   }, [goals, filter]);
 
   const stats = useMemo(() => {
-    const active = goals.filter((g) => g.status === "active").length;
-    const completed = goals.filter((g) => g.status === "completed").length;
+    const activeOnly = goals.filter((g) => g.status !== "CANCELLED");
     const avgPct =
-      goals.length === 0
+      activeOnly.length === 0
         ? 0
-        : Math.round(goals.reduce((sum, g) => sum + progressPct(g), 0) / goals.length);
-    return { active, completed, avgPct };
-  }, [goals]);
+        : Math.round(activeOnly.reduce((sum, g) => sum + progressPct(g), 0) / activeOnly.length);
+    return { active: counts.ACTIVE, completed: counts.COMPLETED, avgPct };
+  }, [goals, counts]);
 
-  const handleSave = async (goal) => {
-    setModalOpen(false);
-    // Optimistic: show it immediately with a temp id, replace once the server responds.
-    setGoals((prev) => [goal, ...prev]);
-    try {
-      const res = await memberDashboardApi.createGoal(goal);
-      const saved = res?.data;
-      if (saved) {
-        setGoals((prev) => prev.map((g) => (g.id === goal.id ? saved : g)));
-      }
-    } catch (err) {
-      console.error("Failed to create goal", err);
-      setGoals((prev) => prev.filter((g) => g.id !== goal.id));
-      setError("Couldn't save that goal. Please try again.");
-    }
-  };
-
-  const handleDelete = async (id) => {
+  const handleLogSubmit = async (start_value) => {
+    setSubmitting(true);
+    const goalId = logTarget.id;
     const prevGoals = goals;
-    setGoals((prev) => prev.filter((g) => g.id !== id));
-    try {
-      await memberDashboardApi.deleteGoal(id);
-    } catch (err) {
-      console.error("Failed to delete goal", err);
-      setGoals(prevGoals);
-      setError("Couldn't delete that goal. Please try again.");
-    }
-  };
-
-  const handleLogProgress = async (id) => {
-    const prevGoals = goals;
-    let updatedValue = null;
-
-    setGoals((prev) =>
-      prev.map((g) => {
-        if (g.id !== id) return g;
-        const step = g.inverse ? -1 : 1;
-        const next = g.current_value + step;
-        const done = g.inverse ? next <= g.target_value : next >= g.target_value;
-        updatedValue = next;
-        return { ...g, current_value: next, status: done ? "completed" : "active" };
-      })
-    );
 
     try {
-      await memberDashboardApi.updateGoalProgress(id, updatedValue);
+      const res = await memberDashboardApi.logProgress(goalId, start_value);
+      const updated = res?.data;
+      setGoals((prev) => prev.map((g) => (g.id === goalId ? updated ?? { ...g, start_value } : g)));
+      setLogTarget(null);
     } catch (err) {
-      console.error("Failed to update progress", err);
+      console.error("Failed to log progress", err);
       setGoals(prevGoals);
-      setError("Couldn't log that progress. Please try again.");
+      setError("Couldn't save your progress. Please try again.");
+    } finally {
+      setSubmitting(false);
     }
   };
 
@@ -571,44 +451,29 @@ export default function MyGoals() {
             My goals
           </h1>
           <p className="text-sm mt-1" style={{ color: THEME.muted }}>
-            Track what you're working toward and log progress as you go.
+            Goals your trainer has set for you — log progress as you hit milestones.
           </p>
         </div>
         <button
-          onClick={() => setModalOpen(true)}
-          className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold text-white shrink-0"
-          style={{ background: THEME.accent }}
+          onClick={load}
+          className="flex items-center gap-2 px-3.5 py-2 rounded-xl text-sm font-semibold shrink-0 transition-opacity hover:opacity-80"
+          style={{ background: THEME.track, color: THEME.text }}
         >
-          <Plus size={16} /> Add goal
+          <RefreshCw size={14} /> Refresh
         </button>
       </div>
 
       <div className="flex gap-4 mb-6">
-        <StatCard
-          icon={<Target size={18} color={THEME.accent} />}
-          label="Active goals"
-          value={stats.active}
-          accent={THEME.accent}
-        />
-        <StatCard
-          icon={<CheckCircle2 size={18} color={THEME.success} />}
-          label="Completed"
-          value={stats.completed}
-          accent={THEME.success}
-        />
-        <StatCard
-          icon={<TrendingUp size={18} color={THEME.warning} />}
-          label="Average progress"
-          value={`${stats.avgPct}%`}
-          accent={THEME.warning}
-        />
+        <StatCard icon={<Target size={18} color={THEME.accent} />} label="Active goals" value={stats.active} accent={THEME.accent} />
+        <StatCard icon={<CheckCircle2 size={18} color={THEME.success} />} label="Completed" value={stats.completed} accent={THEME.success} />
+        <StatCard icon={<Flame size={18} color={THEME.warning} />} label="Average progress" value={`${stats.avgPct}%`} accent={THEME.warning} />
       </div>
 
       <div className="flex items-center gap-1 mb-4">
         {[
-          { key: "active", label: "Active" },
-          { key: "completed", label: "Completed" },
-          { key: "all", label: "All" },
+          { key: "ACTIVE", label: "Active" },
+          { key: "COMPLETED", label: "Completed" },
+          { key: "ALL", label: "All" },
         ].map((tab) => (
           <button
             key={tab.key}
@@ -620,6 +485,9 @@ export default function MyGoals() {
             }}
           >
             {tab.label}
+            <span className="ml-1.5 tabular-nums" style={{ opacity: 0.6 }}>
+              {counts[tab.key]}
+            </span>
           </button>
         ))}
       </div>
@@ -637,25 +505,28 @@ export default function MyGoals() {
       )}
 
       {loading ? (
-        <div className="text-sm" style={{ color: THEME.muted }}>
-          Loading your goals...
+        <div className="flex flex-col gap-3">
+          <GoalCardSkeleton />
+          <GoalCardSkeleton />
         </div>
       ) : filtered.length === 0 ? (
-        <EmptyState onAdd={() => setModalOpen(true)} />
+        <EmptyState filter={filter} />
       ) : (
         <div className="flex flex-col gap-3">
           {filtered.map((goal) => (
-            <GoalCard
-              key={goal.id}
-              goal={goal}
-              onDelete={handleDelete}
-              onLogProgress={handleLogProgress}
-            />
+            <GoalCard key={goal.id} goal={goal} onLogProgress={setLogTarget} />
           ))}
         </div>
       )}
 
-      <AddGoalModal open={modalOpen} onClose={() => setModalOpen(false)} onSave={handleSave} />
+      <LogProgressModal
+        open={!!logTarget}
+        goal={logTarget}
+        submitting={submitting}
+        onClose={() => setLogTarget(null)}
+        onSubmit={handleLogSubmit}
+      />
     </div>
   );
 }
+

@@ -1,7 +1,11 @@
 import { useEffect, useState } from "react";
 import { Plus, ClipboardList, Pencil, Trash2 } from "lucide-react";
 import usePageMeta from "../../lib/usePageMeta.js";
-import { membershipPlanApi, extractErrorMessage } from "../../lib/api.js";
+import {
+  membershipPlanApi,
+  branchApi,
+  extractErrorMessage,
+} from "../../lib/api.js";
 import Button from "../../components/ui/Button.jsx";
 import Modal from "../../components/ui/Modal.jsx";
 import ConfirmDialog from "../../components/ui/ConfirmDialog.jsx";
@@ -18,6 +22,7 @@ const EMPTY_FORM = {
   price: "",
   discount: 0,
   access_type: "SINGLE_BRANCH",
+  branch_id: "",
 };
 
 export default function MembershipPlans() {
@@ -33,6 +38,7 @@ export default function MembershipPlans() {
   const [error, setError] = useState("");
   const [deleteTarget, setDeleteTarget] = useState(null);
   const [deleting, setDeleting] = useState(false);
+  const [branches, setBranches] = useState([]);
   const { user } = useAuth();
   const canManagePlans = user?.role === "ADMIN";
 
@@ -45,6 +51,15 @@ export default function MembershipPlans() {
 
   useEffect(load, []);
 
+  useEffect(() => {
+    if (!canManagePlans) return;
+
+    branchApi
+      .list()
+      .then((res) => setBranches(res.data || []))
+      .catch(() => setBranches([]));
+  }, [canManagePlans]);
+
   const openCreate = () => {
     setForm(EMPTY_FORM);
     setError("");
@@ -52,6 +67,8 @@ export default function MembershipPlans() {
   };
 
   const openEdit = (p) => {
+    if (!canManagePlans) return;
+
     setForm({
       name: p.name || "",
       description: p.description || "",
@@ -60,7 +77,9 @@ export default function MembershipPlans() {
       price: p.price || "",
       discount: p.discount || 0,
       access_type: p.access_type || "SINGLE_BRANCH",
+      branch_id: p.branch_id || "",
     });
+
     setError("");
     setModal({ mode: "edit", data: p });
   };
@@ -75,6 +94,7 @@ export default function MembershipPlans() {
         duration: Number(form.duration),
         price: Number(form.price),
         discount: Number(form.discount) || 0,
+        branch_id: form.access_type === "SINGLE_BRANCH" ? form.branch_id : null,
       };
       if (modal.mode === "create") {
         await membershipPlanApi.create(payload);
@@ -267,13 +287,41 @@ export default function MembershipPlans() {
               required
               value={form.access_type}
               onChange={(e) =>
-                setForm({ ...form, access_type: e.target.value })
+                setForm({
+                  ...form,
+                  access_type: e.target.value,
+                  branch_id:
+                    e.target.value === "ALL_BRANCHES" ? "" : form.branch_id,
+                })
               }
             >
               <option value="SINGLE_BRANCH">Single branch</option>
               <option value="ALL_BRANCHES">All branches</option>
             </Select>
           </Field>
+
+          {form.access_type === "SINGLE_BRANCH" && (
+            <Field label="Branch" required>
+              <Select
+                required
+                value={form.branch_id}
+                onChange={(e) =>
+                  setForm({
+                    ...form,
+                    branch_id: e.target.value,
+                  })
+                }
+              >
+                <option value="">Select branch</option>
+
+                {branches.map((branch) => (
+                  <option key={branch.id} value={branch.id}>
+                    {branch.name}
+                  </option>
+                ))}
+              </Select>
+            </Field>
+          )}
 
           {error && (
             <p className="text-xs text-ember-500 bg-ember-500/10 border border-ember-500/20 rounded-xl px-3 py-2">

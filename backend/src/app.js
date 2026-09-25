@@ -25,6 +25,8 @@ import workoutPlanExercise from './modules/workout/workoutplanexercise/workoutPl
 import DietPlan from './modules/diet/dietPlan/dietPlan.routes.js';
 import DietPlanMealRoutes from './modules/diet/dietPlanMeal/dietPlanMeal.routes.js';
 import aiRoutes from './modules/ai/ai.routes.js';
+import branchDashboardRoutes from "./modules/branchDashboard/branchDashboard.routes.js";
+
 // import memberDashboardRoutes from './modules/memberDashboard/memberDashboard.routes.js';
 
 const app = express()
@@ -56,6 +58,7 @@ app.use('/api/v1/workout-plan-exercise',workoutPlanExercise);
 app.use('/api/v1/diet-plan',DietPlan);
 app.use('/api/v1/diet-plan-meal',DietPlanMealRoutes);
 app.use('/api/v1/ai',aiRoutes);
+app.use("/api/v1/branch-dashboard",branchDashboardRoutes);
 // app.use('/api/v1/member-dashboard',memberDashboardRoutes);
 
 export default app;

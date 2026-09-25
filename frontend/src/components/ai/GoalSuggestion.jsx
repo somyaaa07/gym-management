@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { Sparkles, RefreshCw, Dumbbell, Utensils, AlertTriangle, Cpu } from 'lucide-react';
+import { Sparkles, RefreshCw, Dumbbell, Utensils, AlertTriangle, Cpu, CheckCircle2 } from 'lucide-react';
 import { aiApi, extractErrorMessage } from '../../lib/api.js';
 import Button from '../ui/Button.jsx';
 import { Badge, Spinner } from '../ui/Misc.jsx';
@@ -24,11 +24,14 @@ const isFutureDate = (value) => {
  *  - memberId:    member the goal belongs to
  *  - goal:        { goal_type, target_value, target_unit, start_value, target_date, notes }  (form strings)
  *  - preferences: { days_per_week, session_duration_minutes, fitness_level, diet_preference }
+ *  - goalId:      id of the saved Goal row (null until "Save goal" has been pressed) — enables Apply
+ *  - onApplied:   called with the /ai/apply response data after a successful apply
  */
-export default function GoalAiSuggestions({ memberId, goal, preferences }) {
+export default function GoalAiSuggestions({ memberId, goal, preferences, goalId, onApplied }) {
   const [modelKey, setModelKey] = useState('llama');
   const [auto, setAuto] = useState(true);
-const [status, setStatus] = useState({ ok: null, llama: null, gemma: null });
+  const [status, setStatus] = useState({ ok: null, llama: null, gemma: null });
+
   const [loading, setLoading] = useState(false);
   const [elapsed, setElapsed] = useState(0);
   const [error, setError] = useState('');
@@ -36,10 +39,13 @@ const [status, setStatus] = useState({ ok: null, llama: null, gemma: null });
   const [resultKey, setResultKey] = useState('');
   const [tab, setTab] = useState('workout');
 
+  const [applying, setApplying] = useState(false);
+  const [applyError, setApplyError] = useState('');
+  const [applied, setApplied] = useState(null);
+
   const abortRef = useRef(null);
   const cacheRef = useRef(new Map());
 
-  // Which models are installed in Ollama?
   // Which models are installed in Ollama?
   useEffect(() => {
     aiApi
@@ -92,11 +98,28 @@ const [status, setStatus] = useState({ ok: null, llama: null, gemma: null });
       cacheRef.current.set(key, res.data);
       setResult(res.data);
       setResultKey(key);
+      setApplied(null);
+      setApplyError('');
     } catch (err) {
       if (err?.code === 'ERR_CANCELED') return; // superseded by a newer request
       setError(extractErrorMessage(err, 'Could not generate a suggestion'));
     } finally {
       if (abortRef.current === controller) setLoading(false);
+    }
+  };
+
+  const doApply = async () => {
+    if (!goalId || !result) return;
+    setApplying(true);
+    setApplyError('');
+    try {
+      const res = await aiApi.apply({ member_id: memberId, goal_id: goalId, plan: result.plan });
+      setApplied(res.data);
+      onApplied?.(res.data);
+    } catch (err) {
+      setApplyError(extractErrorMessage(err, 'Could not apply plan'));
+    } finally {
+      setApplying(false);
     }
   };
 
@@ -134,7 +157,7 @@ const [status, setStatus] = useState({ ok: null, llama: null, gemma: null });
   }, [loading]);
 
   const ollamaDown = status.ok === false;
-    const stale = result && resultKey !== key;
+  const stale = result && resultKey !== key;
 
   return (
     <div className="rounded-2xl border border-ink-700 bg-ink-800 shadow-soft">
@@ -152,7 +175,7 @@ const [status, setStatus] = useState({ ok: null, llama: null, gemma: null });
 
         <div className="flex items-center gap-2">
           <div className="inline-flex rounded-xl border border-ink-600 p-0.5 bg-ink-800">
-                      {MODEL_OPTIONS.map((m) => {
+            {MODEL_OPTIONS.map((m) => {
               const info = status[m.key];
               const missing = status.ok && info && !info.installed;
               return (
@@ -272,6 +295,21 @@ const [status, setStatus] = useState({ ok: null, llama: null, gemma: null });
             {tab === 'workout' ? <WorkoutView plan={result.plan} /> : <DietView plan={result.plan} />}
 
             <p className="text-[11px] text-ink-400">{result.disclaimer}</p>
+
+            <div className="border-t border-ink-700 pt-4">
+              {!goalId ? (
+                <p className="text-xs text-ink-400">Save the goal below to enable applying this plan.</p>
+              ) : applied ? (
+                <Notice tone="success" icon={CheckCircle2}>
+                  Plan applied — workout and diet plan created for this member.
+                </Notice>
+              ) : (
+                <Button type="button" onClick={doApply} loading={applying} disabled={stale}>
+                  <CheckCircle2 size={14} /> Apply Plan
+                </Button>
+              )}
+              {applyError && <Notice tone="error">{applyError}</Notice>}
+            </div>
           </div>
         )}
       </div>
@@ -393,6 +431,7 @@ function Notice({ tone, icon: Icon, children }) {
   const tones = {
     error: 'text-ember-500 bg-ember-500/10 border-ember-500/20',
     warn: 'text-amber-600 bg-amber-500/10 border-amber-500/25',
+    success: 'text-volt-500 bg-volt-500/10 border-volt-500/25',
   };
   return (
     <div className={`flex items-start gap-2 text-xs border rounded-xl px-3 py-2.5 ${tones[tone]}`}>
