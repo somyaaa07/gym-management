@@ -106,6 +106,8 @@ export const memberDashboardApi = {
   get: () => unwrap(client.get('/member-dashboard')),
   attendance: (month) =>
     unwrap(client.get('/member-dashboard/my-attendance', { params: { month } })),
+  goals: () => unwrap(client.get('/member-dashboard/my-goals')),
+
 };
 
 // ---------- Membership Plans ----------

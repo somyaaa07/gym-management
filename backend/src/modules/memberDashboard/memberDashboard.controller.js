@@ -268,3 +268,35 @@ export const getMyAttendance = async (req, res) => {
     return res.status(500).json({ success: false, message: "Internal server error" });
   }
 };
+
+export const getMyGoals = async(req,res)=>{
+  try{
+    const tenant_id = req.user.tenant_id;
+    const member_id = req.params.member_id;
+
+    const goals = await Goal.findAll({
+      where:{
+        member_id,
+        tenant_id
+      }
+    })
+
+    if(goals.length === 0){
+      return res.status(404).json({success:false,message:"No goals found"})
+    }
+
+    return res.status(200).json({
+      success:true,
+      message:"Goals fetched successfully",
+      data:goals
+    })
+
+  }
+  catch(err){
+    console.log("error in getMyGoals",err)
+    return res.status(500).json({
+      success:false,
+      message:"Internal server error"
+    })
+  }
+}

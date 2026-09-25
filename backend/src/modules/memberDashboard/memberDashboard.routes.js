@@ -13,6 +13,7 @@ router.get(
 )
 router.get("/my-attendance",authMiddleware,tenantMiddleware,roleMiddleware("MEMBER"), MemberDashboardController.getMyAttendance);
 
+router.get("/my-goals",authMiddleware,tenantMiddleware,roleMiddleware("MEMBER"), MemberDashboardController.getMyGoals);
 
 export default router;
  

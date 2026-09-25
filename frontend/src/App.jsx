@@ -25,6 +25,7 @@ import MemberDashboard from "./pages/member/memberDashboard.jsx";
 import MemberSlotHistory from "./pages/member/memberslotHistory.jsx";
 import MyAttendance from "./pages/member/memberAttendanceHistory.jsx";
 import MyHealthProfile from "./pages/member/myhealthprofile.jsx";
+import MyGoals from "./pages/member/MyGoals.jsx";
 export default function App() {
 const { isAuthenticated, user } = useAuth();
 const home = user?.role === "MEMBER" ? "/app/member-dashboard" : "/app/member-dashboard";
@@ -193,6 +194,11 @@ const home = user?.role === "MEMBER" ? "/app/member-dashboard" : "/app/member-da
          <Route path="health-profile" element={
           <ProtectedRoute roles={["MEMBER","ADMIN"]}>
             <MyHealthProfile/>
+          </ProtectedRoute>
+        }/>
+           <Route path="my-goals" element={
+          <ProtectedRoute roles={["MEMBER","ADMIN"]}>
+            <MyGoals/>
           </ProtectedRoute>
         }/>
 
