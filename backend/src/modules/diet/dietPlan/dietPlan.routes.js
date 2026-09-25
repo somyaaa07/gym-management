@@ -7,9 +7,9 @@ const router = express.Router();
 
 router.post('/', authMiddleware, roleMiddleware("ADMIN"), dietPlanController.createDietPlan);
 
-router.get('/',authMiddleware,roleMiddleware('ADMIN'),dietPlanController.getAllDietPlans);
-
-router.get('/:id',authMiddleware,roleMiddleware('ADMIN'),dietPlanController.getDietPlanById);
+router.get('/member/:memberId', authMiddleware, roleMiddleware('ADMIN'), dietPlanController.getDietPlansByMember);
+router.get('/', authMiddleware, roleMiddleware('ADMIN'), dietPlanController.getAllDietPlans);
+router.get('/:id', authMiddleware, roleMiddleware('ADMIN'), dietPlanController.getDietPlanById);
 
 router.put('/:id',authMiddleware,roleMiddleware('ADMIN'),dietPlanController.updateDietPlan);
 

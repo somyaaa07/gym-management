@@ -102,11 +102,17 @@ export const memberApi = {
 
 // ---------- Member Dashboard ----------
 export const memberDashboardApi = {
-
   get: () => unwrap(client.get('/member-dashboard')),
   attendance: (month) =>
     unwrap(client.get('/member-dashboard/my-attendance', { params: { month } })),
+  goals: () => unwrap(client.get('/member-dashboard/my-goals')),
 
+  logProgress: (goalId, start_value) =>
+    unwrap(
+      client.patch(`/member-dashboard/my-goals/${goalId}/progress`, { start_value })
+    ),
+
+  membership: () => unwrap(client.get('/member-dashboard/my-membership')),
 
 };
 
@@ -114,7 +120,6 @@ export const memberDashboardApi = {
 export const branchDashboardApi = {
   get: () => unwrap(client.get("/branch-dashboard")),
 
-  
 };
 
 // ---------- Membership Plans ----------
@@ -189,12 +194,14 @@ export const dietPlanApi = {
   list: () => unwrap(client.get("/diet-plans")),
 
   getById: (id) => unwrap(client.get(`/diet-plans/${id}`)),
+  getByMember: (memberId) => unwrap(client.get(`/diet-plan/member/${memberId}`)),
+
+  getMine: () => unwrap(client.get("/member-dashboard/my-diet-plan")),
 
   update: (id, payload) => unwrap(client.put(`/diet-plans/${id}`, payload)),
 
   remove: (id) => unwrap(client.delete(`/diet-plans/${id}`)),
 };
-
 // ---------- Diet Plan Meals ----------
 export const dietPlanMealApi = {
   create: (payload) => unwrap(client.post("/diet-plan-meals", payload)),
@@ -229,13 +236,15 @@ export const workoutPlanApi = {
   list: () => unwrap(client.get("/workout-plans")),
 
   getById: (id) => unwrap(client.get(`/workout-plans/${id}`)),
+  getByMember: (memberId) => unwrap(client.get(`/workout-plan/member/${memberId}`)),
+
+  getMine: () => unwrap(client.get("/member-dashboard/my-workout-plan")),
 
   update: (id, payload) =>
     unwrap(client.patch(`/workout-plans/${id}`, payload)),
 
   remove: (id) => unwrap(client.delete(`/workout-plans/${id}`)),
 };
-
 // ---------- Workout Plan Exercises ----------
 export const workoutPlanExerciseApi = {
   create: (payload) => unwrap(client.post("/workout-plan-exercises", payload)),
@@ -250,12 +259,10 @@ export const workoutPlanExerciseApi = {
   remove: (id) => unwrap(client.delete(`/workout-plan-exercises/${id}`)),
 };
 
-// ---------- AI (local Ollama: Llama / Gemma) ----------
 export const aiApi = {
-  models: () => unwrap(client.get("/ai/models")),
-  // local models can take a while on CPU, so no axios timeout; pass `signal` to cancel
-  suggest: (payload, { signal } = {}) =>
-    unwrap(client.post("/ai/suggest", payload, { signal, timeout: 0 })),
+  models: () => unwrap(client.get('/ai/models')),
+  suggest: (payload, { signal } = {}) => unwrap(client.post('/ai/suggest', payload, { signal, timeout: 0 })),
+  apply: (payload) => unwrap(client.post('/ai/apply', payload)),
 };
 
 export const extractErrorMessage = (err, fallback = "Something went wrong") => {

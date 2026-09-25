@@ -139,3 +139,9 @@ export const generatePlanResponseSchema = z.object({
         }),
     }),
 });
+
+export const applyPlanSchema = z.object({
+    member_id: z.string().uuid(),
+    goal_id: z.string().uuid(),
+    plan: generatePlanResponseSchema,
+});

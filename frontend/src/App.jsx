@@ -26,6 +26,10 @@ import BranchDashboard from "./pages/branch/BranchDashboard.jsx";
 import MemberSlotHistory from "./pages/member/memberslotHistory.jsx";
 import MyAttendance from "./pages/member/memberAttendanceHistory.jsx";
 import MyHealthProfile from "./pages/member/myhealthprofile.jsx";
+import MyGoals from "./pages/member/MyGoals.jsx";
+import DietPlanPage from "./pages/member/MyDietPlan.jsx";
+import WorkoutPlanPage from "./pages/member/MyWorkoutPlan.jsx";
+import MyMemberships from './pages/member/MyMembership.jsx'
 export default function App() {
   const { isAuthenticated, user } = useAuth();
   // const home =
@@ -73,7 +77,7 @@ export default function App() {
             user?.role === "BRANCH_ADMIN" ? <BranchDashboard /> : <Dashboard />
           }
         />
-        
+
         <Route
           path="tenants"
           element={
@@ -235,14 +239,35 @@ export default function App() {
 
         <Route path="my-attendance" element={
           <ProtectedRoute roles={["MEMBER"]}>
-           <MyAttendance/>
+            <MyAttendance />
           </ProtectedRoute>
-        }/>
-         <Route path="health-profile" element={
-          <ProtectedRoute roles={["MEMBER","ADMIN"]}>
-            <MyHealthProfile/>
+        } />
+        <Route path="health-profile" element={
+          <ProtectedRoute roles={["MEMBER", "ADMIN"]}>
+            <MyHealthProfile />
           </ProtectedRoute>
-        }/>
+        } />
+        <Route path="my-goals" element={
+          <ProtectedRoute roles={["MEMBER", "ADMIN"]}>
+            <MyGoals />
+          </ProtectedRoute>
+        } />
+        <Route path="my-diet-plan" element={
+          < ProtectedRoute roles={["MEMBER", "ADMIN"]}>
+            <DietPlanPage />
+          </ProtectedRoute>
+        } />
+        <Route path="my-workout-plan" element={
+          <ProtectedRoute roles={["MEMBER", "ADMIN"]}>
+           <WorkoutPlanPage/>
+          </ProtectedRoute>
+        } />
+
+         <Route path="my-membership" element={
+          <ProtectedRoute roles={["MEMBER", "ADMIN"]}>
+           <MyMemberships/>
+          </ProtectedRoute>
+        } />
 
 
         {/* <Route path="myattendance" element={

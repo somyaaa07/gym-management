@@ -95,7 +95,7 @@ const logout = useCallback(async () => {
 
     setUser(decodedUser);
 
-    return res;
+    return decodedUser;
   };
 
   // ==========================================
@@ -114,8 +114,11 @@ const logout = useCallback(async () => {
       return;
     }
 
-    // Keep your existing logic:
-    // Fetch /auth/me for authenticated admin-side users.
+    // /auth/me is only for admin-side roles. MEMBER never calls it — the
+    // backend rejects it with 403, and members don't need it anyway:
+    // their own data (diet plan, workout plan, goals, attendance...) is
+    // resolved server-side from req.user.id via findLoggedInMember(), not
+    // from anything merged into this profile.
     const allowedRoles = ["ADMIN", "SUPER_ADMIN", "BRANCH_ADMIN"];
 
     if (!allowedRoles.includes(user.role)) {

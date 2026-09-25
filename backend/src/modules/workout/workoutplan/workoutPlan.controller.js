@@ -1,4 +1,4 @@
-import { WorkoutPlan, Member } from "../../../model/index.js";
+import { WorkoutPlan,WorkoutPlanExercise, Exercise, Member } from "../../../model/index.js";
 import { createWorkoutSchema, updateWorkoutSchema } from "./workoutPlan.validation.js";
 
 
@@ -237,3 +237,34 @@ export const deleteWorkoutPlan = async (req, res) => {
     }
 
 }
+
+export const getWorkoutPlansByMember = async (req, res) => {
+    try {
+        const tenant_id = req.user.tenant_id;
+        const { memberId } = req.params;
+
+        const workoutPlans = await WorkoutPlan.findAll({
+            where: { member_id: memberId, tenant_id },
+            include: [
+                {
+                    model: WorkoutPlanExercise,
+                    include: [{ model: Exercise, attributes: ['id', 'name', 'muscle_group', 'category', 'equipment'] }],
+                },
+            ],
+            order: [['created_at', 'DESC']],
+        });
+
+        return res.status(200).json({
+            success: true,
+            message: "Workout plans retrieved successfully",
+            data: workoutPlans
+        });
+    }
+    catch (err) {
+        console.log("Error retrieving member workout plans", err);
+        return res.status(500).json({
+            success: false,
+            message: "Internal Server Error"
+        });
+    }
+};
