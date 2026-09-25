@@ -228,11 +228,17 @@ export default function Members({ branchId }) {
           columns={[
             { key: "name", header: "Name" },
             { key: "phone", header: "Phone" },
-            {
-              key: "branch",
-              header: "Branch",
-              render: (r) => branchName(r.branch_id),
-            },
+            // Show Branch only for ADMIN and SUPER_ADMIN
+            ...(user?.role !== "BRANCH_ADMIN"
+              ? [
+                  {
+                    key: "branch",
+                    header: "Branch",
+                    render: (r) => branchName(r.branch_id),
+                  },
+                ]
+              : []),
+
             {
               key: "joining_date",
               header: "Joined",

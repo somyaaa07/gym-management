@@ -129,11 +129,11 @@ const BRANCH_NAV = [
     label: "Face Registration",
     icon: Fingerprint,
   },
-  {
-    to: "/app/branch-reports",
-    label: "Reports",
-    icon: TrendingUp,
-  },
+  // {
+  //   to: "/app/branch-reports",
+  //   label: "Reports",
+  //   icon: TrendingUp,
+  // },
 ];
 
 // MEMBER SIDEBAR

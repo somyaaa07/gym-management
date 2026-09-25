@@ -8,5 +8,5 @@ const router = express.Router();
 router.post('/checkin',authMiddleware,roleMiddleware('ADMIN','MANAGER','RECEPTIONIST'),checkInOutController.checkIn);
 router.post('/checkout',authMiddleware,roleMiddleware('ADMIN','MANAGER','RECEPTIONIST'),checkInOutController.checkOut);
 
-router.get('/attendance-history',authMiddleware,roleMiddleware('ADMIN','MANAGER','RECEPTIONIST'),checkInOutController.getAttendanceHistory);
+router.get('/attendance-history',authMiddleware,roleMiddleware('ADMIN','MANAGER','RECEPTIONIST','BRANCH_ADMIN'),checkInOutController.getAttendanceHistory);
 export default router;
