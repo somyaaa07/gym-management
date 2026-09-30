@@ -5,7 +5,7 @@ import dotenv from "dotenv";
 
 dotenv.config();
 
-const loginLink = `${process.env.FRONTEND_URL}/login`;
+const loginLink = `${process.env.FRONTEND_URL}/login` || "https://gym-management.ditbilling.store/login";
 
 const transporter = nodemailer.createTransport({
     service: "gmail",
@@ -24,7 +24,7 @@ export const sendSetPasswordEmail = async (
 ) => {
 
     const setPasswordLink =
-        `${process.env.FRONTEND_URL}/set-password?token=${rawToken}`;
+        `${process.env.FRONTEND_URL}/set-password?token=${rawToken}` || "https://gym-management.ditbilling.store/set-password?token=" + rawToken;
 
     await transporter.sendMail({
         from: `"Gym Management" <${process.env.EMAIL_USER}>`,
