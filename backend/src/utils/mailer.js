@@ -1,11 +1,9 @@
-
-
 import nodemailer from "nodemailer";
 import dotenv from "dotenv";
 
 dotenv.config();
 
-const loginLink = `${process.env.FRONTEND_URL}/login` || "https://gym-management.ditbilling.store/login";
+const FRONTEND_URL = (process.env.FRONTEND_URL || "https://gym-management.ditbilling.store").replace(/\/$/, "");
 
 const transporter = nodemailer.createTransport({
     service: "gmail",
@@ -15,65 +13,30 @@ const transporter = nodemailer.createTransport({
     }
 });
 
-// MEMBER SET PASSWORD EMAIL
-
-export const sendSetPasswordEmail = async (
-    toEmail,
-    name,
-    rawToken
-) => {
-
-    const setPasswordLink =
-        `${process.env.FRONTEND_URL}/set-password?token=${rawToken}` || "https://gym-management.ditbilling.store/set-password?token=" + rawToken;
+export const sendSetPasswordEmail = async (toEmail, name, rawToken) => {
+    const setPasswordLink = `${FRONTEND_URL}/set-password?token=${rawToken}`;
 
     await transporter.sendMail({
         from: `"Gym Management" <${process.env.EMAIL_USER}>`,
         to: toEmail,
         subject: "Set your password to activate your membership account",
-
         html: `
             <p>Hi ${name},</p>
-
-            <p>
-                Your member account has been created.
-                Click the link below to set your password:
-            </p>
-
-            <p>
-                <a href="${setPasswordLink}">
-                    ${setPasswordLink}
-                </a>
-            </p>
-
-            <p>
-                This link will expire in 24 hours.
-            </p>
+            <p>Your member account has been created. Click the link below to set your password:</p>
+            <p><a href="${setPasswordLink}">${setPasswordLink}</a></p>
+            <p>This link will expire in 24 hours.</p>
         `
     });
 };
 
-
-
-// BRANCH ADMIN EMAIL
-
-
-export const sendBranchAdminCredentialsEmail = async (
-    toEmail,
-    adminName,
-    branchName,
-    password
-) => {
-
-    const loginLink =
-        `${process.env.FRONTEND_URL}/login`;
+export const sendBranchAdminCredentialsEmail = async (toEmail, adminName, branchName, password) => {
+    const loginLink = `${FRONTEND_URL}/login`;
 
     await transporter.sendMail({
         from: `"Gym Management" <${process.env.EMAIL_USER}>`,
         to: toEmail,
-
         subject: "Your Branch Admin Account Has Been Created",
-
-        html: `
+          html: `
             <div style="font-family: Arial, sans-serif; line-height: 1.6;">
 
                 <h2>Welcome ${adminName}!</h2>
